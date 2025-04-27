@@ -12,6 +12,6 @@
 #include "../utils/common/log.h"
 #include "../utils/common/request.h"
 
-Status* LoadUserDataAPI(Auth* auth); // load user data from API
+error LoadUserDataAPI(Auth* auth, Status* status);
 
 #endif // LOAD_USER_DATA_H

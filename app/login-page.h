@@ -9,6 +9,7 @@
 #include "../service/load-user-data.h"
 
 code LoginPage(Auth* auth); // login page
+code LoginField(Auth* auth); // login field
 code Login(Auth* auth); // login function
 code Logout(Auth* auth); // logout function
 
