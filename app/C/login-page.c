@@ -12,15 +12,17 @@ code LoginPage(Auth* auth) {
     }
     uint8 times = 0;
     while(times < 3) {
-        code status = LoginField(auth); // Get login details
+        code status = LoginField(auth); 
         if (status != 1) {
-            FreeAuthContent(auth); // Free auth data
-            return status; // Failed to get login details
+            FreeAuthContent(auth);
+            return status;
         }
-        status = Login(auth); // Attempt to login
-        if (status == 1) return 1; // Success
-        FreeAuthContent(auth); // Free auth data
-        LogMsg("Login failed, please try again"); // Log failure message
+        return 1;
+        // verify login
+        // status = Login(auth); // Attempt to login
+        // if (status == 1) return 1; // Success
+        // FreeAuthContent(auth); // Free auth data
+        // LogMsg("Login failed, please try again"); // Log failure message
 
         times++;
     }
@@ -29,7 +31,7 @@ code LoginPage(Auth* auth) {
 }
 
 code LoginField(Auth* auth) {
-    if (auth->studentId == NULL || auth->password == NULL) {
+    if (auth->studentId != NULL || auth->password != NULL) {
         return -1; // Invalid auth data
     }
     code status = requestString(&auth->studentId, MAX_STUDENT_ID, "Student ID");
@@ -49,6 +51,8 @@ code LoginField(Auth* auth) {
 code Login(Auth* auth) {
     error err = NULL;
     Status status;
+    initStatus(&status); // Initialize status structure
+    
     err = LoadUserDataAPI(auth, &status); // Load user data
     if (err != NULL) {
         FreeAuthContent(auth); // Free auth data
