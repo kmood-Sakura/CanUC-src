@@ -51,3 +51,5 @@ void FetchSystem(Auth* auth) {
     PrintDataPath(auth->dataPath);
     LogMsg("Database setup successful!");
 }
+
+//updatetee

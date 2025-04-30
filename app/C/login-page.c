@@ -68,3 +68,5 @@ code Logout(Auth* auth) {
     FreeAuthContent(auth); // Free auth data
     return 1; // Success
 }
+
+//update
