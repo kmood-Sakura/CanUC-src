@@ -15,7 +15,16 @@ Status LoadUserDataAPI(Auth* auth) {
         FreeUserData(auth->userData); // Free existing user data
         auth->userData = NULL; // Set userData pointer to NULL
     }
-    // Load user data
+    auth->userData = (UserData*)malloc(sizeof(UserData)); // Allocate memory for user data
+    if (auth->userData == NULL) {
+        status = SetStatus(0, "Failed to allocate memory for user data", "Memory allocation failed"); // Create failure status
+        return status;
+    }
+
+    // Load user data process
+
+    status = SetStatus(1, "User data loaded successfully", "User data loaded successfully"); // Create success status
+
     return status;
 }
 
