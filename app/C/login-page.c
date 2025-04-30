@@ -17,13 +17,12 @@ code LoginPage(Auth* auth) {
             FreeAuthContent(auth);
             return status;
         }
-        return 1;
-        // verify login
-        // status = Login(auth); // Attempt to login
-        // if (status == 1) return 1; // Success
-        // FreeAuthContent(auth); // Free auth data
-        // LogMsg("Login failed, please try again"); // Log failure message
-
+        if (Login(auth)) {
+            LogMsg("Login successful"); // Log success message
+            return 1; // Login successful
+        }
+        LogMsg("Login failed, please try again"); // Log failure message
+        FreeAuthContent(auth); // Free auth data
         times++;
     }
     
@@ -49,22 +48,16 @@ code LoginField(Auth* auth) {
 }
 
 code Login(Auth* auth) {
-    error err = NULL;
     Status status;
     initStatus(&status); // Initialize status structure
-    
-    err = LoadUserDataAPI(auth, &status); // Load user data
-    if (err != NULL) {
-        FreeAuthContent(auth); // Free auth data
-        FreeStatusContent(&status); // Free status
-        Error(err); // Log error
-        return 0; // Failed to load user data
-    }
+    status = LoadUserDataAPI(auth); // Load user data API
+
     if (!LogFatal(&status)) {
         FreeAuthContent(auth); // Free auth data
         FreeStatusContent(&status); // Free status
         return 0; // Failed to load user data
     }
+    // error err = NULL;
     return 1; // Success
 }
 
@@ -72,6 +65,6 @@ code Logout(Auth* auth) {
     if (auth == NULL) {
         return 0; // Invalid auth data
     }
-    FreeAuth(auth); // Free auth data
+    FreeAuthContent(auth); // Free auth data
     return 1; // Success
 }

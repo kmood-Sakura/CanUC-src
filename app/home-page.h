@@ -4,8 +4,12 @@
 #include "../utils/common/log.h"
 #include "../utils/common/status.h"
 
+#include "../utils/datatype/int-type.h"
+#include "../utils/datatype/string-type.h"
+
 #include "login-page.h"
 
 void HomePage(Auth* auth); // Main page function
+void FetchSystem(Auth* auth); // Fetch system function
 
 #endif // MAIN_PAGE_H

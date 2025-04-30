@@ -3,34 +3,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-error LoadUserDataAPI(Auth* auth, Status* status) {
-    FreeStatus(status); // Free existing status
-    error err = allocateStatus(&status); // Allocate status
-    if (err != NULL) {
-        return err; // Memory allocation failed
-    }
-
-    err = createStatus(status, 0, "Failed to load user data", "Failed to load user data");
-    if (err != NULL) {
-        return err; // Memory allocation failed
-    }
-    
+Status LoadUserDataAPI(Auth* auth) {
+    Status status;
+    initStatus(&status); // Initialize status
     if (auth == NULL) {
-        err = createStatus(status, 0, "Invalid request Auth", "You need to input Auth parameter"); // Create status
-        if (err != NULL) {
-            return err; // Memory allocation failed
-        }
-        return NULL;
+        status = SetStatus(0, "Auth pointer is NULL", "Invalid auth pointer"); // Create failure status
+        return status;
     }
-    err = createUserData(&auth->userData, NULL, NULL, NULL); // Load user data
-    if (err != NULL) {
-        return err; // Failed to load user data
+    if (auth->userData != NULL) {
+        // reload user data
+        FreeUserData(auth->userData); // Free existing user data
+        auth->userData = NULL; // Set userData pointer to NULL
     }
-    
-    err = createStatus(status, 1, "User data loaded successfully", "User data loaded successfully"); // Create success status
-    if (err != NULL) {
-        return err; // Memory allocation failed
+    // Load user data
+    return status;
+}
+
+Status LoadLEB2Data(Auth* auth) {
+    Status status;
+    initStatus(&status);
+    if (auth == NULL) {
+        status = SetStatus(0, "Auth pointer is NULL", "Invalid auth pointer"); // Create failure status
+        return status;
+    }
+    if (auth->userData == NULL) {
+        status = SetStatus(0, "Failed to load LEB2 data", "Failed to load LEB2 data"); // Create failure status
+        return status;
     }
 
-    return NULL; // Success
+    // Load LEB2 data
+    
+    return status; // Success
 }
