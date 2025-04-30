@@ -13,6 +13,6 @@
 
 #include "../utils/datatype/string-type.h"
 
-error UpdateDB(Auth* auth, Status* status, Path canUCdir);
+Status SetUpDataBase(Auth* auth);
 
 #endif // UPDATE_DB_H
