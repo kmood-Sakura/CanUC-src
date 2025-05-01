@@ -1,5 +1,4 @@
 #include "../home-page.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,36 +8,45 @@
 #include "../../utils/struct/path.h"
 
 void HomePage(Auth* auth) {
-    // LogMsg("Welcome to the Main Page!");
+    printf("--------------------------------------------------------\n\n");
+
     if (!LoginPage(auth)) return;
-    printf("Welcome, User");
 
-    //FetchSystem(auth);
-
-    printf("[1] LEB2\n[2] Calendar\n[3] Notification\n[e] Exit\n");
     while(1) {
+        printf("\n--------------------------------------------------------\n\n");
+        printf("\033[1mHome page\033[0m\n\n");
+
+        // FetchSystem(auth);
+
+        printf("  [1] LEB2\n  [2] Calendar\n  [3] Notification\n\n  [e] Exit\n\n");
+        
         char cmd;
-        printf("\ncommand: ");
-        scanf(" %c",&cmd);
-        cmd = toupper(cmd);
-        switch (cmd){
-            case '1': leb2page();
+        printf("command: ");
+        scanf(" %c", &cmd);
+        cmd = tolower(cmd);  // Convert input to uppercase for uniformity
+
+        switch (cmd) {
+            case '1': 
+                leb2page(); 
                 break;
-            // case '2': Calendar(auth);
+            // case '2': Calendar(auth); 
+            //     printf("\n--------------------------------------------------------\n\n");
             //     break;
-            // case '3': Notification(auth);
+            // case '3': Notification(auth); 
+            //     printf("\n--------------------------------------------------------\n\n");
             //     break;
-            case 'E': 
-                printf("Exiting the system. Goodbye!\n");
+            case 'e': 
+                printf("\nExiting the system. Goodbye!\n");
+                printf("\n--------------------------------------------------------\n\n");
                 exit(200);
-            
             default:
-                printf("Invalid Command. Please Enter Again\n");
+                printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
                 break;
         }
-    }
+    }    
 }
 
+// Function to fetch system data (Example: database setup, etc.)
 void FetchSystem(Auth* auth) {
     if (auth->studentId == NULL) return;
 
@@ -48,7 +56,5 @@ void FetchSystem(Auth* auth) {
         return;
     }
     PrintDataPath(auth->dataPath);
-    LogMsg("Database setup successful!");
+    printf("Database setup successful!");
 }
-
-//updatetee

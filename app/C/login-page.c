@@ -22,7 +22,8 @@ code LoginPage(Auth* auth) {
         //     LogMsg("Login successful\n"); // Log success message
         //     return 1; // Login successful
         // }
-        LogMsg("Login failed, please try again\n"); // Log failure message
+        // LogMsg("Login failed, please try again\n");
+        printf("\033[0;31mLogin failed, please try again\033[0m\n");
         FreeAuthContent(auth); // Free auth data
         times++;
     }
@@ -34,18 +35,17 @@ code LoginField(Auth* auth) {
     if (auth->studentId != NULL || auth->password != NULL) {
         return -1; // Invalid auth data
     }
-    code status = requestString(&auth->studentId, MAX_STUDENT_ID, "Student ID");
+    code status = requestString(&auth->studentId, MAX_STUDENT_ID, "  Student ID");
     if (status != 1) {
         FreeString(&auth->studentId); // Free student ID string
         return status;
     }
-    status = requestString(&auth->password, MAX_PASSWORD_LEN, "Password");
+    status = requestString(&auth->password, MAX_PASSWORD_LEN, "  Password");
     if (status != 1) {
         FreeString(&auth->studentId); // Free student ID string
         FreeString(&auth->password); // Free password string
         return status;
     }
-    printf("\n");
     return 1;
 }
 
