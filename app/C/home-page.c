@@ -22,12 +22,12 @@ void HomePage(Auth* auth) {
         scanf(" %c",&cmd);
         cmd = toupper(cmd);
         switch (cmd){
-            case '1': leb2page();
+            case '1':
                 break;
-            // case '2': Calendar(auth);
-            //     break;
-            // case '3': Notification(auth);
-            //     break;
+            case '2':
+                break;
+            case '3': 
+                break;
             case 'E': 
                 printf("Exiting the system. Goodbye!\n");
                 exit(200);
