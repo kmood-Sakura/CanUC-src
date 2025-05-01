@@ -10,41 +10,33 @@
 
 void HomePage(Auth* auth) {
     // LogMsg("Welcome to the Main Page!");
-
-    // 1. Login
-<<<<<<< HEAD
-    if (!LoginPage(auth)) {
-        return;
-    }
-    LogMsg("Welcome back User\n");
-=======
     if (!LoginPage(auth)) return;
-    LogMsg("Login successful!");
->>>>>>> 3bda8079c57d01782d3129135f5569d416389602
+    printf("Welcome, User");
 
-    // 2.fetch
     //FetchSystem(auth);
 
-    // 3.loop input command
-    char cmd;
-    cmd = toupper(cmd);
-    while(requestCommand(&cmd, "[1] LEB2\n[2] Calendar\n[3] Notification\n[e] Exit\n")) {
-        switch (cmd) {
-            case '1':
-                LogMsg("LEB2 module selected!\n");
+    printf("[1] LEB2\n[2] Calendar\n[3] Notification\n[e] Exit\n");
+    while(1) {
+        char cmd;
+        printf("\ncommand: ");
+        scanf(" %c",&cmd);
+        cmd = toupper(cmd);
+        switch (cmd){
+            case '1': leb2page();
                 break;
-            case '2':
-                LogMsg("Calendar module selected!\n");
-                break;
-            case '3':
-                LogMsg("Notification module is not available yet!\n");
-                break;
+            // case '2': Calendar(auth);
+            //     break;
+            // case '3': Notification(auth);
+            //     break;
+            case 'E': 
+                printf("Exiting the system. Goodbye!\n");
+                exit(200);
+            
             default:
-                LogMsg("Invalid command, please try again!\n");
+                printf("Invalid Command. Please Enter Again\n");
                 break;
         }
     }
-    LogMsg("Exiting the Home Page...");
 }
 
 void FetchSystem(Auth* auth) {

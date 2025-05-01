@@ -2,7 +2,7 @@
 
 #include "utils/struct/auth.h"
 #include "utils/common/log.h"
-#include "app/home-page.h"
+#include "app/home.h"
 
 int main() {
     printf("\n");

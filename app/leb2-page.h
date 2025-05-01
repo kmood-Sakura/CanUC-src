@@ -11,6 +11,6 @@
 #include "../utils/struct/file.h"
 #include "../utils/struct/auth.h"
 
-
+void leb2page();
 
 #endif
