@@ -12,10 +12,15 @@ void HomePage(Auth* auth) {
     // LogMsg("Welcome to the Main Page!");
 
     // 1. Login
+<<<<<<< HEAD
     if (!LoginPage(auth)) {
         return;
     }
     LogMsg("Welcome back User\n");
+=======
+    if (!LoginPage(auth)) return;
+    LogMsg("Login successful!");
+>>>>>>> 3bda8079c57d01782d3129135f5569d416389602
 
     // 2.fetch
     //FetchSystem(auth);
