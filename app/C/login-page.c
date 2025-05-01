@@ -17,11 +17,12 @@ code LoginPage(Auth* auth) {
             FreeAuthContent(auth);
             return status;
         }
-        if (Login(auth)) {
-            LogMsg("Login successful"); // Log success message
-            return 1; // Login successful
-        }
-        LogMsg("Login failed, please try again"); // Log failure message
+        return 1;
+        // if (Login(auth)) {
+        //     LogMsg("Login successful\n"); // Log success message
+        //     return 1; // Login successful
+        // }
+        LogMsg("Login failed, please try again\n"); // Log failure message
         FreeAuthContent(auth); // Free auth data
         times++;
     }
@@ -44,6 +45,7 @@ code LoginField(Auth* auth) {
         FreeString(&auth->password); // Free password string
         return status;
     }
+    printf("\n");
     return 1;
 }
 

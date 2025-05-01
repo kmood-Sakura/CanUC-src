@@ -5,7 +5,7 @@
 #include "app/home-page.h"
 
 int main() {
-    printf("Welcome to the app!\n");
+    printf("\n");
     Auth auth;
     initAuth(&auth); // Initialize auth structure
 

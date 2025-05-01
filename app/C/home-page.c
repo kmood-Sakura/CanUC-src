@@ -3,37 +3,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "../../service/update-db.h"
 #include "../../utils/struct/path.h"
 
 void HomePage(Auth* auth) {
-    LogMsg("Welcome to the Main Page!");
+    // LogMsg("Welcome to the Main Page!");
 
     // 1. Login
     if (!LoginPage(auth)) {
         return;
     }
-    LogMsg("Login successful!");
+    LogMsg("Welcome back User\n");
 
     // 2.fetch
-    FetchSystem(auth);
+    //FetchSystem(auth);
 
     // 3.loop input command
     char cmd;
-    while(requestCommand(&cmd, "e : exit\nl : LEB2\nc : calendar\nn : notification\n")) {
+    cmd = toupper(cmd);
+    while(requestCommand(&cmd, "[1] LEB2\n[2] Calendar\n[3] Notification\n[e] Exit\n")) {
         switch (cmd) {
-            case 'l':
-                LogMsg("LEB2 module selected!");
+            case '1':
+                LogMsg("LEB2 module selected!\n");
                 break;
-            case 'c':
-                LogMsg("Calendar module selected!");
+            case '2':
+                LogMsg("Calendar module selected!\n");
                 break;
-            case 'n':
-                LogMsg("Notification module is not available yet!");
+            case '3':
+                LogMsg("Notification module is not available yet!\n");
                 break;
             default:
-                LogMsg("Invalid command, please try again!");
+                LogMsg("Invalid command, please try again!\n");
                 break;
         }
     }
