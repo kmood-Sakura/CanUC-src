@@ -11,9 +11,7 @@ void HomePage(Auth* auth) {
     LogMsg("Welcome to the Main Page!");
 
     // 1. Login
-    if (!LoginPage(auth)) {
-        return;
-    }
+    if (!LoginPage(auth)) return;
     LogMsg("Login successful!");
 
     // 2.fetch

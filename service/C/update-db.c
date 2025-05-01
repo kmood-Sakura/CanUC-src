@@ -222,7 +222,7 @@ Status SetUpDataBase(Auth* auth) {
     
     initDataPath(Temp);
     
-    err = createDataPath(Temp, studentIdPath, studentId);
+    err = createDataPath(Temp, studentIdPath, studentId, 1);
     if (err != NULL) {
         FreeDataPath(Temp);
         FreePathContent(&leb2Path);
@@ -261,7 +261,7 @@ Status SetUpDataBase(Auth* auth) {
     
     initDataPath(notificationDataPath);
     
-    err = createDataPath(notificationDataPath, notificationPath, notification);
+    err = createDataPath(notificationDataPath, notificationPath, notification, 1);
     if (err != NULL) {
         FreeDataPath(notificationDataPath);
         FreeDataPath(auth->dataPath);
@@ -309,7 +309,7 @@ Status SetUpDataBase(Auth* auth) {
     
     initDataPath(calendarDataPath);
     
-    err = createDataPath(calendarDataPath, calendarPath, calendar);
+    err = createDataPath(calendarDataPath, calendarPath, calendar,1);
     if (err != NULL) {
         FreeDataPath(calendarDataPath);
         FreeDataPath(auth->dataPath);
@@ -357,7 +357,7 @@ Status SetUpDataBase(Auth* auth) {
     
     initDataPath(leb2DataPath);
     
-    err = createDataPath(leb2DataPath, leb2Path, leb2);
+    err = createDataPath(leb2DataPath, leb2Path, leb2,1);
     if (err != NULL) {
         FreeDataPath(leb2DataPath);
         FreeDataPath(auth->dataPath);
@@ -422,7 +422,7 @@ Status SetUpDataBase(Auth* auth) {
         return status;
     }
     
-    err = createDataPath(dbDataPath, DBPath, dbName);
+    err = createDataPath(dbDataPath, DBPath, dbName,1);
     if (err != NULL) {
         FreePathContent(&dbName);
         FreeDataPath(dbDataPath);
