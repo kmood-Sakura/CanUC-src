@@ -10,10 +10,8 @@
 
 void HomePage(Auth* auth) {
     // LogMsg("Welcome to the Main Page!");
-    if (!LoginPage(auth)) return;
+    if (AuthenPage(auth) != 1) return;
     printf("Welcome, User");
-
-    //FetchSystem(auth);
 
     printf("[1] LEB2\n[2] Calendar\n[3] Notification\n[e] Exit\n");
     while(1) {
@@ -39,11 +37,10 @@ void HomePage(Auth* auth) {
     }
 }
 
-void FetchSystem(Auth* auth) {
-    if (auth->studentId == NULL) return;
+void FetchBaseSystem(Auth* auth) {
+    if (auth == NULL) return;
 
-    Status status;
-    status = SetUpDataBase(auth);
+    Status status = SetUpDataBase(auth);
     if (!LogFatal(&status)) {
         return;
     }

@@ -11,6 +11,6 @@
 #include "leb2-page.h"
 
 void HomePage(Auth* auth); // Main page function
-void FetchSystem(Auth* auth); // Fetch system function
+void FetchBaseSystem(Auth* auth); // Fetch system function
 //update
 #endif // MAIN_PAGE_H
