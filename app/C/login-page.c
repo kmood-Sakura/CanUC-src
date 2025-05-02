@@ -18,7 +18,6 @@ code AuthenPage(Auth* auth) {
                 continue;
         }
     }
-
     return 1;
 }
 
