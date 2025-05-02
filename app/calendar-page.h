@@ -7,4 +7,11 @@
 
 #include "../utils/struct/calendar.h"
 
+void addTask(Calendar* calendar, Task task);
+void removeTask(Calendar* calendar, const char* title);
+Task* findTaskByTitle(const Calendar* calendar, const char* title);
+void printCalendar(const Calendar* calendar);
+void printMenu();
+void CalendarPage();
+
 #endif 

@@ -9,6 +9,7 @@
 
 #include "login-page.h"
 #include "leb2-page.h"
+#include "calendar-page.h"
 
 void HomePage(Auth* auth); // Main page function
 void FetchSystem(Auth* auth); // Fetch system function

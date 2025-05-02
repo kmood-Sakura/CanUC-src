@@ -24,7 +24,7 @@ void HomePage(Auth* auth) {
         switch (cmd){
             case '1':
                 break;
-            case '2':
+            case '2': CalendarPage();
                 break;
             case '3': 
                 break;
