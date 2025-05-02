@@ -15,14 +15,12 @@ void class_page(ClassData* classData) {
             printf("\033[38;5;250mNo assignment\033[0m\n");
         } else {
             for (int i = 0; i < classData->assignmentCount; i++) {
-                printf("  [%d] %s", i + 1, classData->assignments[i].title);
-                if (classData->assignments[i].done) {
-                    printf(" \033[32m[done]\033[0m");
-                }
-                printf("\n");
+                if (classData->assignments[i].done)
+                    printf("  [%d] %s \033[32m[done]\033[0m\n", i + 1, classData->assignments[i].title);
+                else
+                    printf("  [%d] %s\n", i + 1, classData->assignments[i].title);
             }
         }
-
         printf("\n  [b] Back\n\n");
 
         char input[10];
@@ -32,7 +30,7 @@ void class_page(ClassData* classData) {
         if (strlen(input) == 1 && isdigit(input[0])) {
             int idx = input[0] - '0' - 1;
             if (idx >= 0 && idx < classData->assignmentCount) {
-                submission_page(&classData->assignments[idx]);
+                submission_page(&classData->assignments[idx]); // 🔗 open assignment
             } else {
                 printf("\n\033[0;31mInvalid Assignment Number\033[0m\n");
             }

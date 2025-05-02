@@ -32,6 +32,9 @@ typedef struct {
 
 typedef struct {
     char title[100];
+    char description[256];
+    char assignedDate[20];
+    char dueDate[20];
     int done;
 } myAssignment;
 
