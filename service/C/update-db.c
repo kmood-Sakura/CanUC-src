@@ -404,12 +404,12 @@ Status MakeTempData(Auth* auth) {
     const uint16 numClasses = 2;
     
     // Create component folders for each class
-    const string components[] = {
-        "Dashboard", "Syllabus", "AssignmentList", "LearningActivityList",
-        "AttendanceList", "ScoreBookList", "LearnItList", "FileList",
-        "Survey", "MemberList"
+    const string ClassComponents[] = {
+        "Dashboard", "Syllabus", "AssignmentActivity", "LearningActivity",
+        "Attendance", "ScoreBook", "LearnIt", "File",
+        "Survey", "Member"
     };
-    const uint16 numComponents = 10;
+    const uint16 numClassComponents = 10;
     
     // Create semester folders
     for (int s = 0; s < numSemesters; s++) {
@@ -523,12 +523,12 @@ Status MakeTempData(Auth* auth) {
             }
             
             // Create component folders for this class
-            for (uint16 cmp = 0; cmp < numComponents; cmp++) {
+            for (uint16 cmp = 0; cmp < numClassComponents; cmp++) {
                 Path compPath, compName;
                 initPath(&compPath);
                 initPath(&compName);
                 
-                err = createPath(&compName, components[cmp]);
+                err = createPath(&compName, ClassComponents[cmp]);
                 if (err != NULL) {
                     // Continue with next component if this one fails
                     LogMsg("Failed to create component path");
