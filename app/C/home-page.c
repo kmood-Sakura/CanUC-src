@@ -11,18 +11,19 @@
 void HomePage(Auth* auth) {
     // LogMsg("Welcome to the Main Page!");
     if (AuthenPage(auth) != 1) return;
-    printf("Welcome, User");
+    printf("\033[1mHome page\033[0m\n\n");
 
     FetchBaseSystem(auth); // Fetch base system data
 
-    printf("[1] LEB2\n[2] Calendar\n[3] Notification\n[e] Exit\n");
+    printf("  [1] LEB2\n  [2] Calendar\n  [3] Notification\n\n  [e] Exit\n");
     while(1) {
         char cmd;
         printf("\ncommand: ");
         scanf(" %c",&cmd);
         cmd = toupper(cmd);
         switch (cmd){
-            case '1':
+            case '1': 
+                leb2page();
                 break;
             case '2':
                 break;

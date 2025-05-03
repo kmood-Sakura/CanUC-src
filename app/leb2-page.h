@@ -13,4 +13,6 @@
 
 #include "../service/update-db.h"
 
+void leb2page();
+
 #endif

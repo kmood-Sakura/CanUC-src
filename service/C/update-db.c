@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 Status SetUpDataBase(Auth* auth) {
-    LogMsg("SetUp DB API called");
+    // LogMsg("SetUp DB API called");
     
     if (auth == NULL) {
         return SetStatus(0, "Auth pointer is NULL", "Invalid auth pointer");;
