@@ -15,34 +15,34 @@
 #define MAX_SEMESTERS 10
 #define MAX_ASSIGNMENTS 10
 
-typedef struct {
-    char name[100];
-} myClass;
+// typedef struct {
+//     char name[100];
+// } myClass;
 
-typedef struct {
-    myClass classes[MAX_CLASSES];
-    int count;
-} SemesterData;
+// typedef struct {
+//     myClass classes[MAX_CLASSES];
+//     int count;
+// } SemesterData;
 
-typedef struct {
-    SemesterData data;
-    int priority;
-    char label[100];
-} mySemester;
+// typedef struct {
+//     SemesterData data;
+//     int priority;
+//     char label[100];
+// } mySemester;
 
-typedef struct {
-    char title[100];
-    char description[256];
-    char assignedDate[20];
-    char dueDate[20];
-    int done;
-} myAssignment;
+// typedef struct {
+//     char title[100];
+//     char description[256];
+//     char assignedDate[20];
+//     char dueDate[20];
+//     int done;
+// } myAssignment;
 
-typedef struct {
-    char name[20];
-    myAssignment assignments[MAX_ASSIGNMENTS];
-    int assignmentCount;
-} ClassData;
+// typedef struct {
+//     char name[20];
+//     myAssignment assignments[MAX_ASSIGNMENTS];
+//     int assignmentCount;
+// } ClassData;
 
 void leb2page();
 

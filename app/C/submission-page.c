@@ -5,13 +5,21 @@
 #include <string.h>
 #include <ctype.h>
 
-void submission_page(myAssignment* assignment) {
+char* format_date(DateTime dt) {
+    static char buf[20];
+    time_t t = dt;
+    struct tm *tm_info = localtime(&t);
+    strftime(buf, sizeof(buf), "%d/%m/%Y", tm_info);
+    return buf;
+}
+
+void submission_page(Assignment* assignment) {
     while (1) {
         printf("\n--------------------------------------------------------\n\n");
-        printf("\033[1m%s\033[0m\n\n", assignment->title);
+        printf("\033[1m%s\033[0m\n\n", assignment->head);
         printf("\033[1mDescription\033[0m\n%s\n\n", assignment->description);
-        printf("\033[1mAssign Date\033[0m\n%s\n\n", assignment->assignedDate);
-        printf("\033[1mDue Date\033[0m\n\033[31m%s\033[0m\n\n", assignment->dueDate);
+        printf("\033[1mAssign Date\033[0m\n%s\n\n", format_date(assignment->assignDate));
+        printf("\033[1mDue Date\033[0m\n\033[31m%s\033[0m\n\n", format_date(assignment->dueDate));
 
         printf("\033[1mStatus: \033[0m");
         if (assignment->done) {
