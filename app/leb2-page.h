@@ -11,5 +11,6 @@
 #include "../utils/struct/file.h"
 #include "../utils/struct/auth.h"
 
+#include "../service/update-db.h"
 
 #endif

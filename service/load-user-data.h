@@ -13,5 +13,6 @@
 #include "../utils/common/request.h"
 
 Status LoadUserDataAPI(Auth* auth);
+Status LoadAllUserAppDataPathAPI(Auth* auth); // Load all user app data path
 //update
 #endif // LOAD_USER_DATA_H

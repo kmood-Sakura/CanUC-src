@@ -22,6 +22,31 @@ Status LoadUserDataAPI(Auth* auth) {
     return SetStatus(1, "User data loaded successfully", NULL);
 }
 
+Status LoadAllUserAppDataPathAPI(Auth* auth) {
+    if (auth == NULL) {
+        return SetStatus(0, "Auth pointer is NULL", "Invalid auth pointer");
+    }
+    if (auth->userData == NULL) {
+        return SetStatus(0, "User data pointer is NULL", "User data not loaded yet");
+    }
+    if (auth->dataPath == NULL) {
+        return SetStatus(0, "Data path pointer is NULL", "Data path not loaded yet");
+    }
+    error err = NULL;
+    for (uint16 i = 0; i < auth->dataPath->sizeDir; i++) {
+        if (auth->dataPath->Dir[i]->isFolder == 1) {
+            err = getDirDataPath(auth->dataPath->Dir[i]);
+            if (err != NULL) {
+                Error(err);
+                err = NULL; // Reset error to NULL for next iteration
+                continue;
+            }
+        }
+    }
+
+    return SetStatus(1, "User data path loaded successfully", NULL);
+}
+
 Status LoadLEB2Data(Auth* auth) {
     error err = allocateLEB2(&auth->userData->leb2);
     if (err != NULL) return SetStatus(0, "Failed to allocate memory for LEB2 data", err);
