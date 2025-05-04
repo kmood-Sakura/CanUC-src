@@ -7,7 +7,14 @@ code AuthenPage(Auth* auth) {
     if (auth->userData != NULL) return -1; // User data already exists
 
     char cmd;
-    while(requestCommand(&cmd, "Please choose your option:\n[1] Login\n[2] Sign up\n[e] Exit\n")){
+    while(1){
+        printf("\n--------------------------------------------------------\n\n");
+        printf("\033[1mAuthentication Page\033[0m\n\n");
+        printf("  [1] Login\n  [2] Sign up\n\n  [e] Exit\n\n");
+        if(!requestCommand(&cmd)){
+            printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
+            continue;
+        }
         switch (cmd)
         {
             case '1': return LoginPage(auth);
@@ -18,7 +25,7 @@ code AuthenPage(Auth* auth) {
                 continue;
         }
     }
-    return 1;
+    return 0;
 }
 
 code LoginPage(Auth* auth) {
@@ -75,7 +82,7 @@ code AuthInputField(Auth* auth) {
         if (requestConfirm()) return 0;
         return AuthInputField(auth); // Retry input
     }
-    status = requestString(&auth->password, MAX_PASSWORD_LEN, "Password");
+    status = requestString(&auth->password, MAX_PASSWORD_LEN, "  Password");
     if (status != 1) {
         FreeString(&auth->studentId); // Free student ID string
         FreeString(&auth->password); // Free password string
@@ -83,7 +90,6 @@ code AuthInputField(Auth* auth) {
         if (requestConfirm()) return 0;
         return AuthInputField(auth); // Retry input
     }
-    printf("\n");
     return 1;
 }
 
@@ -108,14 +114,6 @@ code Login(Auth* auth) {
         FreeStatusContent(&status); // Free status
         printf("Do you want to sign up?\n");
         if (requestConfirm()) return -1;
-        return 0;
-    }
-
-    status = LoadUserDataAPI(auth); // Load user data API
-
-    if (!LogFatal(&status)) {
-        FreeAuthContent(auth);
-        FreeStatusContent(&status);
         return 0;
     }
     return 1; // Success
