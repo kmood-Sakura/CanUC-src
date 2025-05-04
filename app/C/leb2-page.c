@@ -262,6 +262,7 @@ void AssignmentListPage(AssignmentList* assignmentList) {
         int index = 1;
         
         while (current != NULL) {
+            if (current->assignment.head == NULL) continue;
             string assignDate = NULL; 
             string dueDate = NULL;
             

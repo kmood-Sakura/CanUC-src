@@ -12,12 +12,17 @@
 #include "../utils/common/log.h"
 #include "../utils/common/request.h"
 
-Status LoadUserDataAPI(Auth* auth);
-Status LoadAllUserAppDataPathAPI(Auth* auth); // Load all user app data path
-Status LoadLEB2Data(Auth* auth); // Load all LEB2 data
-error LoadSemesterData(Auth* auth, DataPath* leb2DataPath); // Load semester data
-error LoadClassData(Auth* auth, DataPath* semesterDataPath, Semester* semester); // Load class data
-error LoadAssignment(DataPath* classDataPath, Class* class); // Load assignment data
+#include "../utils/datatype/string-type.h"
 
-//update
+Status LoadUserDataAPI(Auth* auth);
+Status LoadAllUserAppDataPathAPI(Auth* auth);
+Status LoadLEB2Data(Auth* auth);
+error LoadSemesterData(Auth* auth, DataPath* leb2DataPath);
+error LoadClassData(Auth* auth, DataPath* semesterDataPath, Semester* semester);
+Status LoadLearningActivities(Auth* auth, Class* class, DataPath* classDataPath);
+Status LoadAttendance(Auth* auth, Class* class, DataPath* classDataPath);
+Status LoadScoreBook(Auth* auth, Class* class, DataPath* classDataPath);
+Status LoadAllClassData(Auth* auth, Class* class, DataPath* classDataPath);
+error LoadAssignment(DataPath* classDataPath, Class* class);
+
 #endif // LOAD_USER_DATA_H
