@@ -1,6 +1,7 @@
 #include "../login-page.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 code AuthenPage(Auth* auth) {
     if (auth == NULL) return 0;
@@ -21,21 +22,24 @@ code AuthenPage(Auth* auth) {
             case '2': return SignupPage(auth);
             case 'e': return 0;
             default:
-                printf("Invalid command. Please try again.\n");
+                printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n\n");
                 continue;
         }
     }
+    return 0;
     return 0;
 }
 
 code LoginPage(Auth* auth) {
     code code = 0;
     for(uint8 i=0;i<3;i++) {
+        printf("\n--------------------------------------------------------\n\n");
+        printf("  \033[1mLogin page\033[0m\n\n");
         if(AuthInputField(auth)){
-            LogMsg("Input field success\n");
+            // LogMsg("Input field success\n");
             code = Login(auth);
             if (code == 1) {
-                LogMsg("Login success");
+                // LogMsg("Login success");
                 return 1;
             }
             if (code == -1) return Signup(auth);
@@ -53,13 +57,15 @@ code LoginPage(Auth* auth) {
 
 code SignupPage(Auth* auth) {
     for(uint8 times=0;times<3;times++){
+        printf("\n--------------------------------------------------------\n\n");
+        printf("  \033[1mSign up page\033[0m\n\n");
         if(AuthInputField(auth)){
-            LogMsg("Input field success\n");
+            // LogMsg("Input field success\n");
             if (!Signup(auth)) {
                 printf("Sign up failed. Please try again.\n");
                 continue;
             }
-            LogMsg("Sign up success");
+            // LogMsg("Sign up success");
             return 1;
         }
         // invalid input -> exit sign up page
@@ -73,15 +79,16 @@ code AuthInputField(Auth* auth) {
     if (auth->studentId != NULL || auth->password != NULL) {
         return -1; // Invalid auth data
     }
-    printf("Please enter your student ID and password (nothing default to exit) \n");
+    // printf("Please enter your student ID and password (nothing default to exit) \n");
     
-    code status = requestString(&auth->studentId, MAX_STUDENT_ID, "Student ID");
+    code status = requestString(&auth->studentId, MAX_STUDENT_ID, "  Student ID");
     if (status != 1) {
         FreeString(&auth->studentId); // Free student ID string
         printf("Confirm exit\n");
         if (requestConfirm()) return 0;
         return AuthInputField(auth); // Retry input
     }
+    status = requestString(&auth->password, MAX_PASSWORD_LEN, "  Password");
     status = requestString(&auth->password, MAX_PASSWORD_LEN, "  Password");
     if (status != 1) {
         FreeString(&auth->studentId); // Free student ID string
@@ -102,7 +109,6 @@ code Login(Auth* auth) {
         FreeStatusContent(&status); // Free status
         return 0; // Failed to setup database
     }
-    LogMsg("Doing authentication...\n");
     status = Authenticate(auth);
     if (!LogFatal(&status)) {
         FreeAuthContent(auth);
@@ -120,7 +126,7 @@ code Login(Auth* auth) {
 }
 
 code Signup(Auth* auth) {
-    LogMsg("Doing sign up...\n");
+    // LogMsg("Doing sign up...\n");
     Status status;
     initStatus(&status);
     status = SetUpDataBase(auth); // Setup database
@@ -135,6 +141,7 @@ code Signup(Auth* auth) {
         FreeStatusContent(&status); // Free status
         return 0; // Failed to setup authentication
     }
+    
     return 1;
 }
 

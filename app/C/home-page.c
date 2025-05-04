@@ -33,7 +33,7 @@ void HomePage(Auth* auth) {
         switch (cmd) {
             case '1': LEB2Page(auth);
                 break;
-            case '2':
+            case '2': showMenu(auth);
                 break;
             case '3': 
                 break;
