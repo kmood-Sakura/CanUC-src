@@ -14,5 +14,6 @@
 #include "../utils/datatype/string-type.h"
 
 Status SetUpDataBase(Auth* auth);
+Status MakeTempData(Auth* auth); // Make temporary data
 //update
 #endif // UPDATE_DB_H

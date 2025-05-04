@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 Status SetUpDataBase(Auth* auth) {
-    LogMsg("SetUp DB API called");
+    // LogMsg("SetUp DB API called");
     
     if (auth == NULL) {
         return SetStatus(0, "Auth pointer is NULL", "Invalid auth pointer");;
@@ -368,3 +368,232 @@ Status SetUpDataBase(Auth* auth) {
     return SetStatus(1, "Database setup successfully", NULL);
 }
 //update
+
+Status MakeTempData(Auth* auth) {
+    if (auth == NULL) {
+        return SetStatus(0, "Auth pointer is NULL", "Invalid auth pointer");
+    }
+    
+    if (auth->dataPath == NULL) {
+        return SetStatus(0, "DataPath is NULL", "Invalid data path");
+    }
+    
+    // Find the LEB2 directory in auth->dataPath->Dir
+    DataPath* leb2DataPath = NULL;
+    for (uint16 i = 0; i < auth->dataPath->sizeDir; i++) {
+        if (auth->dataPath->Dir[i] != NULL && 
+            stringCmp(auth->dataPath->Dir[i]->filename.path, "LEB2")) {
+            leb2DataPath = auth->dataPath->Dir[i];
+            break;
+        }
+    }
+    
+    if (leb2DataPath == NULL) {
+        return SetStatus(0, "LEB2 folder not found", "LEB2 folder not found in dataPath");
+    }
+    
+    error err = NULL;
+    
+    // Create semester folders: 1-1/ and 1-2/
+    const string semesters[] = {"1-1", "1-2"};
+    const uint16 numSemesters = 2;
+    
+    // Create class folders
+    const string semester1Classes[] = {"MTH101", "CPE101"};
+    const string semester2Classes[] = {"MTH102", "CPE112"};
+    const uint16 numClasses = 2;
+    
+    // Create component folders for each class
+    const string ClassComponents[] = {
+        "Dashboard", "Syllabus", "AssignmentActivity", "LearningActivity",
+        "Attendance", "ScoreBook", "LearnIt", "File",
+        "Survey", "Member"
+    };
+    const uint16 numClassComponents = 10;
+    
+    // Create semester folders
+    for (int s = 0; s < numSemesters; s++) {
+        Path semPath, semName;
+        initPath(&semPath);
+        initPath(&semName);
+        
+        err = createPath(&semName, semesters[s]);
+        if (err != NULL) {
+            return SetStatus(0, "Failed to create semester path", err);
+        }
+        
+        err = createDirPath(&semPath, semName, leb2DataPath->path);
+        if (err != NULL) {
+            FreePathContent(&semName);
+            return SetStatus(0, "Failed to create semester directory path", err);
+        }
+        
+        err = MakeFolderByPath(semPath.path);
+        if (err != NULL) {
+            FreePathContent(&semPath);
+            FreePathContent(&semName);
+            return SetStatus(0, "Failed to create semester folder", err);
+        }
+        
+        // Create DataPath for semester
+        DataPath* semDataPath = NULL;
+        err = allocateDataPath(&semDataPath);
+        if (err != NULL) {
+            FreePathContent(&semPath);
+            FreePathContent(&semName);
+            return SetStatus(0, "Failed to allocate semester DataPath", err);
+        }
+        
+        initDataPath(semDataPath);
+        
+        err = createDataPath(semDataPath, semPath, semName, 1);
+        if (err != NULL) {
+            FreeDataPath(semDataPath);
+            FreePathContent(&semPath);
+            FreePathContent(&semName);
+            return SetStatus(0, "Failed to create semester DataPath", err);
+        }
+        
+        err = addChildDataPath(leb2DataPath, semDataPath);
+        if (err != NULL) {
+            FreeDataPath(semDataPath);
+            FreePathContent(&semPath);
+            FreePathContent(&semName);
+            return SetStatus(0, "Failed to add semester DataPath as child", err);
+        }
+        
+        // Create class folders for this semester
+        const string* classes = (s == 0) ? semester1Classes : semester2Classes;
+        
+        for (uint16 c = 0; c < numClasses; c++) {
+            Path classPath, className;
+            initPath(&classPath);
+            initPath(&className);
+            
+            err = createPath(&className, classes[c]);
+            if (err != NULL) {
+                // Continue with next class if this one fails
+                LogMsg("Failed to create class path");
+                continue;
+            }
+            
+            err = createDirPath(&classPath, className, semPath);
+            if (err != NULL) {
+                FreePathContent(&className);
+                LogMsg("Failed to create class directory path");
+                continue;
+            }
+            
+            err = MakeFolderByPath(classPath.path);
+            if (err != NULL) {
+                FreePathContent(&classPath);
+                FreePathContent(&className);
+                LogMsg("Failed to create class folder");
+                continue;
+            }
+            
+            // Create DataPath for class
+            DataPath* classDataPath = NULL;
+            err = allocateDataPath(&classDataPath);
+            if (err != NULL) {
+                FreePathContent(&classPath);
+                FreePathContent(&className);
+                LogMsg("Failed to allocate class DataPath");
+                continue;
+            }
+            
+            initDataPath(classDataPath);
+            
+            err = createDataPath(classDataPath, classPath, className, 1);
+            if (err != NULL) {
+                FreeDataPath(classDataPath);
+                FreePathContent(&classPath);
+                FreePathContent(&className);
+                LogMsg("Failed to create class DataPath");
+                continue;
+            }
+            
+            err = addChildDataPath(semDataPath, classDataPath);
+            if (err != NULL) {
+                FreeDataPath(classDataPath);
+                FreePathContent(&classPath);
+                FreePathContent(&className);
+                LogMsg("Failed to add class DataPath as child");
+                continue;
+            }
+            
+            // Create component folders for this class
+            for (uint16 cmp = 0; cmp < numClassComponents; cmp++) {
+                Path compPath, compName;
+                initPath(&compPath);
+                initPath(&compName);
+                
+                err = createPath(&compName, ClassComponents[cmp]);
+                if (err != NULL) {
+                    // Continue with next component if this one fails
+                    LogMsg("Failed to create component path");
+                    continue;
+                }
+                
+                err = createDirPath(&compPath, compName, classPath);
+                if (err != NULL) {
+                    FreePathContent(&compName);
+                    LogMsg("Failed to create component directory path");
+                    continue;
+                }
+                
+                err = MakeFolderByPath(compPath.path);
+                if (err != NULL) {
+                    FreePathContent(&compPath);
+                    FreePathContent(&compName);
+                    LogMsg("Failed to create component folder");
+                    continue;
+                }
+                
+                // Create DataPath for component
+                DataPath* compDataPath = NULL;
+                err = allocateDataPath(&compDataPath);
+                if (err != NULL) {
+                    FreePathContent(&compPath);
+                    FreePathContent(&compName);
+                    LogMsg("Failed to allocate component DataPath");
+                    continue;
+                }
+                
+                initDataPath(compDataPath);
+                
+                err = createDataPath(compDataPath, compPath, compName, 1);
+                if (err != NULL) {
+                    FreeDataPath(compDataPath);
+                    FreePathContent(&compPath);
+                    FreePathContent(&compName);
+                    LogMsg("Failed to create component DataPath");
+                    continue;
+                }
+                
+                err = addChildDataPath(classDataPath, compDataPath);
+                if (err != NULL) {
+                    FreeDataPath(compDataPath);
+                    FreePathContent(&compPath);
+                    FreePathContent(&compName);
+                    LogMsg("Failed to add component DataPath as child");
+                    continue;
+                }
+                
+                // Free temporary paths for component
+                FreePathContent(&compPath);
+                FreePathContent(&compName);
+            }
+            
+            // Free temporary paths for class
+            FreePathContent(&classPath);
+            FreePathContent(&className);
+        }
+        
+        // Free temporary paths for semester
+        FreePathContent(&semPath);
+        FreePathContent(&semName);
+    }
+    
+    return SetStatus(1, "LEB2 temporary data created successfully", NULL);
+}

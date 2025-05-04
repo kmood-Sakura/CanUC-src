@@ -11,16 +11,19 @@
 void HomePage(Auth* auth) {
     // LogMsg("Welcome to the Main Page!");
     if (AuthenPage(auth) != 1) return;
-    printf("Welcome, User");
+    printf("\033[1mHome page\033[0m\n\n");
 
-    printf("[1] LEB2\n[2] Calendar\n[3] Notification\n[e] Exit\n");
+    FetchBaseSystem(auth); // Fetch base system data
+
+    printf("  [1] LEB2\n  [2] Calendar\n  [3] Notification\n\n  [e] Exit\n");
     while(1) {
         char cmd;
         printf("\ncommand: ");
         scanf(" %c",&cmd);
         cmd = toupper(cmd);
         switch (cmd){
-            case '1':
+            case '1': 
+                leb2page();
                 break;
             case '2': showMenu(auth);
                 break;
@@ -39,13 +42,18 @@ void HomePage(Auth* auth) {
 
 void FetchBaseSystem(Auth* auth) {
     if (auth == NULL) return;
+    Status status;
+    initStatus(&status);
 
-    Status status = SetUpDataBase(auth);
+    status = MakeTempData(auth); // Make temporary data
     if (!LogFatal(&status)) {
         return;
     }
-    PrintDataPath(auth->dataPath);
-    LogMsg("Database setup successful!");
+    status = LoadAllUserAppDataPathAPI(auth); // Load all user app data path
+    if (!LogFatal(&status)) {
+        return;
+    }
+    // PrintDataPath(auth->dataPath);
+    // LogMsg("Database load successful!");
 }
-
 //updatetee

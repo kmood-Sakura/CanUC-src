@@ -4,3 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+void leb2page(){
+    printf("fuck you");
+}
