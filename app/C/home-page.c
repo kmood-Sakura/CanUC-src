@@ -15,8 +15,8 @@ void HomePage(Auth* auth) {
 
     FetchBaseSystem(auth); // Fetch base system data
 
-    printf("  [1] LEB2\n  [2] Calendar\n  [3] Notification\n\n  [e] Exit\n");
     while(1) {
+        printf("  [1] LEB2\n  [2] Calendar\n  [3] Notification\n\n  [e] Exit\n");
         char cmd;
         printf("\ncommand: ");
         scanf(" %c",&cmd);

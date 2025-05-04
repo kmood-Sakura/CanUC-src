@@ -1,324 +1,11 @@
-/*#include "../calendar-page.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-void CalendarPage(Auth* auth) {
-    Calendar myCalendar;
-    myCalendar.taskList = NULL; // Initialize the task list to NULL
-    myCalendar.date.year = 2025; // Set to a specific date for demonstration
-    myCalendar.date.month = 5;
-    myCalendar.date.day = 2;
-
-    int choice;
-    char title[256];
-    Task task;
-
-    do {
-        printMenu();
-        printf("Calendar Path : ");
-        ShowCalendarPath(auth);
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-        getchar(); // Clean the newline character from the input buffer
-
-        switch (choice) {
-            case 1: // Add Task
-                printf("Enter task title: ");
-                fgets(task.title, sizeof(task.title), stdin);
-                task.title[strcspn(task.title, "\n")] = 0; // Remove the newline character
-
-                printf("Enter task location: ");
-                fgets(task.location, sizeof(task.location), stdin);
-                task.location[strcspn(task.location, "\n")] = 0; // Remove the newline character
-
-                printf("Enter task set Begin date and time (timestamp): ");
-                scanf("%lld", &task.setBegin); // Reading timestamp as long long
-                printf("Enter task set End date and time (timestamp): ");
-                scanf("%lld", &task.setEnd); // Reading timestamp as long long
-                printf("Enter task due date (timestamp): ");
-                scanf("%lld", &task.dueDate); // Reading timestamp as long long
-
-                addTask(&myCalendar, task);
-                break;
-
-            case 2: // Remove Task
-                printf("Enter task title to remove: ");
-                fgets(title, sizeof(title), stdin);
-                title[strcspn(title, "\n")] = 0; // Remove the newline character
-                removeTask(&myCalendar, title);
-                break;
-
-            case 3: // Print Calendar
-                printCalendar(&myCalendar);
-                break;
-
-            case 4: // Exit
-                printf("Exiting the program.\n");
-                break;
-
-            default:
-                printf("Invalid choice. Please try again.\n");
-                break;
-        }
-    } while (choice != 4);
-}
-
-void ShowCalendarPath(Auth* auth) {
-    DataPath* parentsOfCalendar = auth->dataPath;
-    DataPath* CalendarDataPath;
-    Path calendar;
-    error err = NULL;
-    initPath(&calendar);
-    err = createPathLen(&calendar, "Calendar", 8);
-    if (err != NULL) {
-        Error(err);
-        return;
-    }
-    err = findDataPathByFilename(parentsOfCalendar,calendar, &CalendarDataPath);
-    if (err != NULL){
-        Error(err);
-        return;
-    }
-    printf("%s\n", CalendarDataPath->path.path);
-}
-
-void printMenu() {
-    printf("\n--- Calendar Menu ---\n");
-    printf("1. Add Task\n");
-    printf("2. Remove Task\n");
-    printf("3. Print Calendar\n");
-    printf("4. Exit\n");
-}
-
-// Function to add a task to a calendar
-void addTask(Calendar* calendar, Task task) {
-    TaskList* newTask = (TaskList*)malloc(sizeof(TaskList));
-    if (!newTask) {
-        printf("Error: Could not allocate memory for new task.\n");
-        return;
-    }
-    newTask->task = task;
-    newTask->next = NULL;
-    newTask->prev = NULL;
-
-    if (!calendar->taskList) {
-        calendar->taskList = newTask;
-    } else {
-        TaskList* temp = calendar->taskList;
-        while (temp->next != NULL) {
-            temp = temp->next;
-        }
-        temp->next = newTask;
-        newTask->prev = temp;
-    }
-}
-
-// Function to remove a task from a calendar based on its title
-void removeTask(Calendar* calendar, const char* title) {
-    TaskList* current = calendar->taskList;
-    while (current != NULL) {
-        if (strcmp(current->task.title, title) == 0) {
-            if (current->prev != NULL) {
-                current->prev->next = current->next;
-            }
-            if (current->next != NULL) {
-                current->next->prev = current->prev;
-            }
-            if (current == calendar->taskList) {
-                calendar->taskList = current->next;
-            }
-            free(current);
-            printf("Task \"%s\" removed successfully.\n", title);
-            return;
-        }
-        current = current->next;
-    }
-    printf("Task \"%s\" not found.\n", title);
-}
-
-// Function to find a task by its title
-Task* findTaskByTitle(const Calendar* calendar, const char* title) {
-    TaskList* current = calendar->taskList;
-    while (current != NULL) {
-        if (strcmp(current->task.title, title) == 0) {
-            return &current->task;
-        }
-        current = current->next;
-    }
-    return NULL;  // Task not found
-}
-
-// Function to print all tasks in a calendar
-void printCalendar(const Calendar* calendar) {
-    printf("Tasks for date: " DATE_FORMAT "\n", calendar->date.year, calendar->date.month, calendar->date.day);
-    TaskList* current = calendar->taskList;
-    while (current != NULL) {
-        printf("Title: %s, Location: %s\n", current->task.title, current->task.location);
-        // Additional task details can be printed here
-        current = current->next;
-    }
-} */
-
-
-// calendar.c
-
-/*#include "../calendar-page.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-// Get today's Date structure
-Date getTodayDate() {
-    Date date;
-    time_t now = time(NULL);
-    struct tm *tm_info = localtime(&now);
-
-    date.year = tm_info->tm_year + 1900;
-    date.month = tm_info->tm_mon + 1;
-    date.day = tm_info->tm_mday;
-
-    return date;
-}
-
-// Get filename from Date (e.g., 2025-05-03.csv)
-void getFilenameFromDate(Date date, char *filename) {
-    sprintf(filename, DATE_FORMAT ".csv", date.year, date.month, date.day);
-}
-
-// Convert DateTime to readable string format (HH:MM:SS)
-void formatTime(DateTime dt, char *buffer) {
-    struct tm *tm_info = localtime(&dt);
-    sprintf(buffer, CLOCK_FORMAT, tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec);
-}
-
-// Convert DateTime to Date string (YYYY-MM-DD)
-void formatDate(DateTime dt, char *buffer) {
-    struct tm *tm_info = localtime(&dt);
-    sprintf(buffer, DATE_FORMAT, tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday);
-}
-
-// Menu loop
-void showMenu(Auth* auth) {
-    ShowCalendarPath(auth);
-    printf("\n");
-    int choice;
-
-    while (1) {
-        printf("\n==== Calendar Menu ====\n");
-        printf("1. Show Calendar for Today\n");
-        printf("2. Add Task\n");
-        printf("3. Exit\n");
-        printf("Choose an option: ");
-        scanf("%d", &choice);
-        getchar(); // Consume newline
-
-        if (choice == 1) {
-            showCalendarForToday();
-        } else if (choice == 2) {
-            addTask();
-        } else if (choice == 3) {
-            break;
-        } else {
-            printf("Invalid option. Try again.\n");
-        }
-    }
-}
-
-// Show tasks from today's CSV file
-void showCalendarForToday() {
-    char filename[30];
-    Date today = getTodayDate();
-    getFilenameFromDate(today, filename);
-
-    FILE *file = fopen(filename, "r");
-    if (!file) {
-        printf("No tasks found for today.\n");
-        return;
-    }
-
-    printf("\n--- Tasks for Today (%s) ---\n", filename);
-    char line[300];
-    while (fgets(line, sizeof(line), file)) {
-        printf("%s", line);
-    }
-
-    fclose(file);
-}
-
-// Add task and save to today's CSV
-void addTask() {
-    Task task;
-    char buffer[100];
-    char filename[30];
-
-    printf("Enter Task Title: ");
-    fgets(buffer, sizeof(buffer), stdin);
-    task.title = strdup(strtok(buffer, "\n"));  // remove newline
-
-    printf("Enter Location: ");
-    fgets(buffer, sizeof(buffer), stdin);
-    task.location = strdup(strtok(buffer, "\n"));
-
-    time_t now = time(NULL);
-    task.setBegin = now;
-
-    printf("Enter End Time (HH MM SS): ");
-    struct tm end_tm = *localtime(&now);
-    scanf("%d %d %d", &end_tm.tm_hour, &end_tm.tm_min, &end_tm.tm_sec);
-    getchar(); // consume newline
-    task.setEnd = mktime(&end_tm);
-
-    task.dueDate = task.setEnd; // for now, make dueDate same as end
-
-    // Save to file
-    Date today = getTodayDate();
-    getFilenameFromDate(today, filename);
-
-    FILE *file = fopen(filename, "a");
-    if (!file) {
-        printf("Failed to open file.\n");
-        return;
-    }
-
-    char dateStr[20], beginStr[20], endStr[20];
-    formatDate(task.setBegin, dateStr);
-    formatTime(task.setBegin, beginStr);
-    formatTime(task.setEnd, endStr);
-
-    fprintf(file, "%s,%s,%s,%s,%s,%s\n",
-            "SUBJECT", task.title, dateStr, beginStr, endStr, task.location);
-
-    fclose(file);
-    printf("Task added successfully.\n");
-}
-
-void ShowCalendarPath(Auth* auth) {
-    DataPath* parentsOfCalendar = auth->dataPath;
-    DataPath* CalendarDataPath;
-    Path calendar;
-    error err = NULL;
-    initPath(&calendar);
-    err = createPathLen(&calendar, "Calendar", 8);
-    if (err != NULL) {
-        Error(err);
-        return;
-    }
-    err = findDataPathByFilename(parentsOfCalendar,calendar, &CalendarDataPath);
-    if (err != NULL){
-        Error(err);
-        return;
-    }
-    printf("%s\n", CalendarDataPath->path.path);
-} */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-// for Auth and ShowCalendarPath()
 #include "../calendar-page.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
+// for Auth and ShowCalendarPath()
+
 
 void getTodayDateString(char* buffer, size_t size) {
     time_t t = time(NULL);
@@ -327,171 +14,451 @@ void getTodayDateString(char* buffer, size_t size) {
 }
 
 void addTask(Auth* auth) {
-    char subjectCode[50];
-    char title[100];
-    char taskDate[20];
-    char startTime[10];
-    char endTime[10];
-    char location[100];
-
-    printf("Enter Subject Code: ");
-    scanf(" %[^\n]", subjectCode);
-
-    printf("Enter Task Title: ");
-    scanf(" %[^\n]", title);
-
-    printf("Enter Task Date (YYYY-MM-DD): ");
-    scanf(" %[^\n]", taskDate);
-
-    printf("Enter Start Time (HH:MM): ");
-    scanf(" %[^\n]", startTime);
-
-    printf("Enter End Time (HH:MM): ");
-    scanf(" %[^\n]", endTime);
-
-    printf("Enter Location: ");
-    scanf(" %[^\n]", location);
-
-    // Get calendar directory path
-    DataPath* parentsOfCalendar = auth->dataPath;
-    DataPath* CalendarDataPath;
-    Path calendar;
+    if (!auth || !auth->userData) {
+        printf("Invalid user data.\n");
+        return;
+    }
     error err = NULL;
+    Task* newTask = malloc(sizeof(Task));
+    if (!newTask) {
+        perror("Memory allocation failed");
+        return;
+    }
+    newTask->title = NULL;
+    newTask->location = NULL;
 
-    initPath(&calendar);
-    err = createPathLen(&calendar, "Calendar", 8);
+    char tempStr[50];
+
+    // Input Task Title
+    printf("Enter Task Title: ");
+    if (fgets(tempStr, 50, stdin) == NULL) {
+        printf("Failed to read Task Title.\n");
+        free(newTask);
+        return;
+    }
+    uint32 tempStrLen = stringLen(tempStr);
+    if (tempStr[tempStrLen-1] == '\n') {
+        tempStr[tempStrLen-1] = '\0';
+    }
+    err = allocateStringLen(&newTask->title, tempStr, tempStrLen);
     if (err != NULL) {
         Error(err);
+        free(newTask);
         return;
     }
+    // newTask->title = tempStr;
 
-    err = findDataPathByFilename(parentsOfCalendar, calendar, &CalendarDataPath);
+    char locStr[50];
+    // Input Location
+    printf("Enter Location: ");
+    if (fgets(locStr, 50, stdin) == NULL) {
+        printf("Failed to read Location.\n");
+        free(newTask->title);
+        free(newTask);
+        return;
+    }
+    uint32 locStrLen = stringLen(locStr);
+    if (locStr[locStrLen-1] == '\n') {
+        locStr[locStrLen-1] = '\0';
+    }
+    err = allocateStringLen(&newTask->location, locStr, locStrLen);
     if (err != NULL) {
         Error(err);
+        free(newTask);
+        return;
+    }
+    // Input Date
+    char dateStr[11];
+    printf("Enter Task Date (YYYY-MM-DD): ");
+    if (fgets(dateStr, 11, stdin) == NULL) {
+        printf("Failed to read date.\n");
+        free(newTask->title);
+        free(newTask);
         return;
     }
 
-    // Build full file path using your system
-    Path filename, fullPath;
-    err = createPathLen(&filename, strcat(strdup(taskDate), ".csv"), strlen(taskDate) + 4);
+    Date taskDate;
+    if (sscanf(dateStr, "%hu-%hhu-%hhu", &taskDate.year, &taskDate.month, &taskDate.day) != 3) {
+        printf("Invalid date format.\n");
+        free(newTask->title);
+        free(newTask);
+        return;
+    }
+
+    // Input Start Time
+    int startH, startM;
+    printf("Enter Start Time (HH MM): ");
+    if (scanf("%d %d", &startH, &startM) != 2) {
+        printf("Invalid start time input.\n");
+        free(newTask->title);
+        free(newTask);
+        return;
+    }
+
+    // Input End Time
+    int endH, endM;
+    printf("Enter End Time (HH MM): ");
+    if (scanf("%d %d", &endH, &endM) != 2) {
+        printf("Invalid end time input.\n");
+        free(newTask->title);
+        free(newTask);
+        return;
+    }
+
+    newTask->setBegin = makeDateTime(taskDate, startH, startM);
+    newTask->setEnd = makeDateTime(taskDate, endH, endM);
+    newTask->dueDate = newTask->setEnd;
+
+    // Find the calendar for the date
+    CalendarList* calList = auth->userData->calendarList;
+    Calendar* targetCal = NULL;
+
+    while (calList) {
+        if (isSameDate(&calList->calendar.date, &taskDate)) {
+            targetCal = &calList->calendar;
+            break;
+        }
+        calList = calList->next;
+    }
+
+    // Insert task into calendar's task list (only if calendar exists)
+    if (targetCal) {
+        TaskList* newNode = malloc(sizeof(TaskList));
+        if (!newNode) {
+            perror("Memory allocation failed");
+            free(newTask->title);
+            free(newTask->location);
+            free(newTask);
+            return;
+        }
+        newNode->task = *newTask;
+        newNode->next = targetCal->taskList;
+        newNode->prev = NULL;
+        if (targetCal->taskList != NULL)
+            targetCal->taskList->prev = newNode;
+        targetCal->taskList = newNode;
+    }
+
+    // Write task to CSV file
+    Path calendarDir;
+    initPath(&calendarDir);
+    err = NULL;
+    DataPath* calPath = NULL;
+    err = findDataPathByFilename(auth->dataPath, "Calendar", &calPath);
     if (err != NULL) {
         Error(err);
-        return;
+    } else {
+        char filename[32];
+        snprintf(filename, sizeof(filename), "%04d-%02d-%02d.csv",
+                taskDate.year, taskDate.month, taskDate.day);
+
+        Path filenamePath, fullPath;
+        createPathLen(&filenamePath, filename, strlen(filename));
+        createPathFileorFolder(&fullPath, filenamePath, calPath->path);
+
+        // Check if file exists
+        bool fileExists = false;
+        FILE* testFile = fopen(fullPath.path, "r");
+        if (testFile != NULL) {
+            fileExists = true;
+            fclose(testFile);
+        }
+
+        FILE* f = fopen(fullPath.path, "a");
+        if (f) {
+            // Write header if file is new
+            if (!fileExists) {
+                fprintf(f, "Title,Date,Begin,End,Location\n");
+            }
+
+            string beginStr, endStr;
+            dateTimeToString(&beginStr, newTask->setBegin);
+            dateTimeToString(&endStr, newTask->setEnd);
+
+            fprintf(f, "%s,%s,%s,%s\n",
+                    newTask->title,
+                    beginStr,
+                    endStr,
+                    newTask->location);
+
+            fclose(f);
+            free(beginStr);
+            free(endStr);
+
+            printf("Task '%s' added successfully.\n", newTask->title);
+        } else {
+            perror("Failed to open calendar file for writing");
+        }
     }
 
-    err = createPathFileorFolder(&fullPath, filename, CalendarDataPath->path);
-    if (err != NULL) {
-        Error(err);
-        return;
+
+    // Clean up
+    if (newTask->title != NULL) {
+        free(newTask->title);
     }
-
-    FILE* file = fopen(fullPath.path, "a");
-    if (file == NULL) {
-        perror("Failed to open file");
-        return;
+    if (newTask->location != NULL) {
+        free(newTask->location);
     }
-
-    fseek(file, 0, SEEK_END);
-    long fileSize = ftell(file);
-    if (fileSize == 0) {
-        fprintf(file, "Subject Code,Task Title,Date,Start Time,End Time,Location\n");
+    if (newTask != NULL) {
+        free(newTask);
     }
-
-    fprintf(file, "%s,%s,%s,%s,%s,%s\n", subjectCode, title, taskDate, startTime, endTime, location);
-    fclose(file);
-
-    printf("Task added successfully to %s\n", fullPath.path);
 }
 
 void showTodayCalendar(Auth* auth) {
+    if (!auth || !auth->userData) {
+        printf("Invalid user data.\n");
+        return;
+    }
+
     char today[20];
     getTodayDateString(today, sizeof(today));
 
-    DataPath* parentsOfCalendar = auth->dataPath;
-    DataPath* CalendarDataPath;
-    Path calendar;
+    Path calendarDir;
+    initPath(&calendarDir);
     error err = NULL;
-
-    initPath(&calendar);
-    err = createPathLen(&calendar, "Calendar", 8);
+    DataPath* calPath = NULL;
+    err = findDataPathByFilename(auth->dataPath, "Calendar", &calPath);
     if (err != NULL) {
         Error(err);
         return;
     }
 
-    err = findDataPathByFilename(parentsOfCalendar, calendar, &CalendarDataPath);
-    if (err != NULL) {
-        Error(err);
-        return;
-    }
+    char filename[32];
+    snprintf(filename, sizeof(filename), "%s.csv", today);
 
-    Path filename, fullPath;
-    err = createPathLen(&filename, strcat(strdup(today), ".csv"), strlen(today) + 4);
-    if (err != NULL) {
-        Error(err);
-        return;
-    }
-
-    err = createPathFileorFolder(&fullPath, filename, CalendarDataPath->path);
-    if (err != NULL) {
-        Error(err);
-        return;
-    }
+    Path filenamePath, fullPath;
+    createPathLen(&filenamePath, filename, strlen(filename));
+    createPathFileorFolder(&fullPath, filenamePath, calPath->path);
 
     FILE* file = fopen(fullPath.path, "r");
     if (file == NULL) {
-        printf("No calendar file found for today (%s).\n", today);
+        printf("No tasks for today (%s).\n", today);
         return;
     }
-    
+
+    printf("\n+----------------+------------+--------------+-------------+----------------------+\n");
+    printf("|  Task Title    |   Date     | Start Time   | End Time    | Location             |\n");
+    printf("+----------------+------------+--------------+-------------+----------------------+\n");
+
     char line[256];
-    /*printf("\n+----------------+----------------------------+--------------+-------------+-------------+----------------------+\n");
-    printf("|  Subject Code  |        Task Title         |     Date     |  Start Time |   End Time  |       Location       |\n");*/
-    printf("+----------------+----------------------------+--------------+-------------+-------------+----------------------+\n");
-    
+    Task task;
+
+    // Skip header
+    fgets(line, sizeof(line), file);
+
     while (fgets(line, sizeof(line), file)) {
-        string subjectCode = strtok(line, ",");
-        string title = strtok(NULL, ",");
-        string date = strtok(NULL, ",");
-        string startTime = strtok(NULL, ",");
-        string endTime = strtok(NULL, ",");
-        string location = strtok(NULL, "\n");
-    
-        if (subjectCode && title && date && startTime && endTime && location) {
-            printf("| %-14s | %-26s | %-12s | %-11s | %-11s | %-20s |\n",
-                subjectCode, title, date, startTime, endTime, location);
+        char tempTitle[50], tempLocation[50], tempBegin[20], tempEnd[20];
+        if (sscanf(line, "%49[^,],%19[^,],%19[^,],%49[^\n]",
+                   tempTitle, tempBegin, tempEnd, tempLocation) == 4) {
+
+            task.title = strdup(tempTitle);
+            task.location = strdup(tempLocation);
+
+            Date taskDate;
+            int startH, startM, startS, endH, endM, endS;
+
+            // Parse full datetime with seconds for start time
+            if (sscanf(tempBegin, "%hu-%hhu-%hhu %d:%d:%d", &taskDate.year, &taskDate.month, &taskDate.day,
+                       &startH, &startM, &startS) != 6) {
+                printf("Invalid start time format: %s\n", tempBegin);
+                continue;
+            }
+
+            // Parse full datetime with seconds for end time
+            if (sscanf(tempEnd, "%hu-%hhu-%hhu %d:%d:%d", &taskDate.year, &taskDate.month, &taskDate.day,
+                       &endH, &endM, &endS) != 6) {
+                printf("Invalid end time format: %s\n", tempEnd);
+                continue;
+            }
+
+            task.setBegin = makeDateTime(taskDate, startH, startM);
+            task.setEnd = makeDateTime(taskDate, endH, endM);
+
+            printf("| %-14s | %-10.10s | %-12.5s | %-11.5s | %-20s |\n",
+                task.title, tempBegin, tempBegin + 11, tempEnd + 11, task.location);
         }
     }
-    
-    printf("+----------------+----------------------------+--------------+-------------+-------------+----------------------+\n");
+
+    printf("+----------------+------------+--------------+-------------+----------------------+\n");
+
     fclose(file);
-    
-} 
+
+    if (task.title != NULL) free(task.title);
+    if (task.location != NULL) free(task.location);
+}
+
+
+void promptAndRemoveTask(Auth* auth) {
+    if (!auth || !auth->userData) {
+        printf("Invalid user data.\n");
+        return;
+    }
+
+    char today[20];
+    getTodayDateString(today, sizeof(today));
+
+    // Locate the Calendar path
+    DataPath* calPath = NULL;
+    error err = findDataPathByFilename(auth->dataPath, "Calendar", &calPath);
+    if (err != NULL) {
+        Error(err);
+        return;
+    }
+
+    // Construct full file path
+    char filename[32];
+    snprintf(filename, sizeof(filename), "%s.csv", today);
+
+    Path filenamePath, fullPath;
+    createPathLen(&filenamePath, filename, strlen(filename));
+    createPathFileorFolder(&fullPath, filenamePath, calPath->path);
+
+    FILE* file = fopen(fullPath.path, "r");
+    if (!file) {
+        printf("No task file found for today (%s).\n", today);
+        return;
+    }
+
+    // Skip header
+    char line[256];
+    fgets(line, sizeof(line), file);
+
+    TaskList* head = NULL;
+    TaskList* tail = NULL;
+
+    // Read tasks into linked list
+    while (fgets(line, sizeof(line), file)) {
+        char tempTitle[50], tempBegin[25], tempEnd[25], tempLocation[50];
+        if (sscanf(line, "%49[^,],%24[^,],%24[^,],%49[^\n]",
+                   tempTitle, tempBegin, tempEnd, tempLocation) == 4) {
+            TaskList* node = malloc(sizeof(TaskList));
+            if (!node) continue;
+
+            node->task.title = strdup(tempTitle);
+            node->task.location = strdup(tempLocation);
+
+            // Use %lld for DateTime (time_t or long long int)
+            sscanf(tempBegin, "%lld", &node->task.setBegin);  
+            sscanf(tempEnd, "%lld", &node->task.setEnd);      
+
+            node->next = NULL;
+            node->prev = tail;
+
+            if (tail)
+                tail->next = node;
+            else
+                head = node;
+            tail = node;
+        }
+    }
+    fclose(file);
+
+    char titleToRemove[50];
+    printf("Enter the task title to remove: ");
+    scanf(" %49[^\n]", titleToRemove);
+
+    TaskList* current = head;
+    int found = 0;
+    while (current) {
+        if (strcmp(current->task.title, titleToRemove) == 0) {
+            found = 1;
+
+            if (current->prev)
+                current->prev->next = current->next;
+            else
+                head = current->next;
+
+            if (current->next)
+                current->next->prev = current->prev;
+            else
+                tail = current->prev;
+
+            free(current->task.title);
+            free(current->task.location);
+            TaskList* temp = current;
+            current = current->next;
+            free(temp);
+            break;
+        } else {
+            current = current->next;
+        }
+    }
+
+    if (!found) {
+        printf("Task with title \"%s\" not found.\n", titleToRemove);
+        return;
+    }
+
+    // Rewrite file with remaining tasks
+    file = fopen(fullPath.path, "w");
+    if (!file) {
+        printf("Unable to rewrite file.\n");
+        return;
+    }
+
+    fprintf(file, "Title,Date,Begin,End,Location\n");
+    current = head;
+    while (current) {
+        char beginStr[64], endStr[64];
+        
+        // Convert DateTime (time_t) to human-readable format
+        struct tm* beginTime = localtime(&current->task.setBegin);
+        strftime(beginStr, sizeof(beginStr), "%Y-%m-%d %H:%M", beginTime);
+
+        struct tm* endTime = localtime(&current->task.setEnd);
+        strftime(endStr, sizeof(endStr), "%Y-%m-%d %H:%M", endTime);
+
+        // Write task data to file
+        fprintf(file, "%s,%s,%s,%s\n",
+                current->task.title,
+                //today,  // You may want to modify this for date formatting.
+                beginStr,
+                endStr,
+                current->task.location);
+
+        TaskList* temp = current;
+        current = current->next;
+        free(temp->task.title);
+        free(temp->task.location);
+        free(temp);
+    }
+
+    fclose(file);
+    printf("Task \"%s\" removed successfully.\n", titleToRemove);
+}
+
 
 
 void showMenu(Auth* auth) {
-    int choice;
 
     while (1) {
-        printf("\n==== Calendar Menu ====\n");
-        printf("1. Show Calendar for Today\n");
-        printf("2. Add Task\n");
-        printf("3. Exit\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-
-        switch (choice) {
-            case 1:
-                showTodayCalendar(auth);
-                break;
-            case 2:
-                addTask(auth);
-                break;
-            case 3:
-                printf("Exiting...\n");
-                return;
-            default:
-                printf("Invalid choice. Try again.\n");
+        printf("\033[1mCalendar page\033[0m\n\n");
+        printf("  [1] Show Today's Calendar\n  [2] Add Task\n  [3] Remove Task\n\n  [e] Exit\n");
+        char cmd;
+        printf("command : ");
+        scanf(" %c", &cmd);
+        int32 next = getchar();
+        if (next != '\n' && next != EOF) {
+            ungetc(next, stdin);
+        }
+        if (cmd == '1') {
+            showTodayCalendar(auth);
+            continue;
+        }
+        else if (cmd == '2') {
+            addTask(auth);
+            continue;
+        }
+        else if (cmd == '3') {
+            promptAndRemoveTask(auth);
+            continue;
+        }
+        else if (cmd == 'e') {
+            printf("Exiting Calendar Page...\n");
+            return;
+        }
+        else {
+            printf("Invalid Command. Try Again!!!");
         }
     }
 }

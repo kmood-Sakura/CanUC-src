@@ -157,6 +157,7 @@ code Signup(Auth* auth) {
         FreeStatusContent(&status); // Free status
         return 0; // Failed to setup authentication
     }
+    
     return 1;
 }
 

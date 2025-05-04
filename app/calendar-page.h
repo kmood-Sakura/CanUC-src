@@ -8,6 +8,8 @@
 #include "../utils/struct/calendar.h"
 #include "../utils/struct/auth.h"
 
+#include "../utils/datatype/date-type.h"
+
 /*void addTask(Calendar* calendar, Task task);
 void removeTask(Calendar* calendar, const char* title);
 Task* findTaskByTitle(const Calendar* calendar, const char* title);
@@ -19,13 +21,8 @@ void printMenu(); */
 void showMenu(Auth* auth);
 void showTodayCalendar(Auth* auth);
 void addTask(Auth* auth);
+void promptAndRemoveTask(Auth* auth);
 
 
-void addTask(Calendar* calendar, Task task);
-void removeTask(Calendar* calendar, const char* title);
-Task* findTaskByTitle(const Calendar* calendar, const char* title);
-void printCalendar(const Calendar* calendar);
-void printMenu();
-void CalendarPage();
 
 #endif 
