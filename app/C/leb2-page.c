@@ -1,286 +1,461 @@
-// #include "../leb2-page.h"
-
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <ctype.h>
-
-// void class_page(Class* classData);
-
-// Semester semesters[2];
-// Class classObjects[2][MAX_CLASSES]; // [semester][classIndex]
-
-// void push_class(SemesterList *data, int semIndex, const char *name) {
-//     if (data->count < MAX_CLASSES) {
-//         strcpy(data->classes[data->count].name, name); // myClass
-//         strcpy(classObjects[semIndex][data->count].name, name); // ClassData
-//         classObjects[semIndex][data->count].assignmentCount = 0;
-//         data->count++;
-//     }
-// }
-
-// void push_assignment(int semIndex, int classIndex, const char* title, const char* desc, const char* assignDate, const char* dueDate) {
-//     Class* class = &classObjects[semIndex][classIndex];
-//     if (class->assignmentCount < MAX_ASSIGNMENTS) {
-//         Assignment* a = &class->assignments[class->assignmentCount];
-//         strcpy(a->head, title);
-//         strcpy(a->description, desc);
-//         strcpy(a->assignDate, assignDate);
-//         strcpy(a->dueDate, dueDate);
-//         a->done = 0;
-//         class->assignmentCount++;
-//     }
-// }
-
-
-// void leb2page() {
-//     semesters[0].data.count = 0;
-//     semesters[0].priority = 2;
-//     strcpy(semesters[0].label, "Semester 1");
-
-//     semesters[1].data.count = 0;
-//     semesters[1].priority = 1;
-//     strcpy(semesters[1].label, "Semester 2");
-
-//     push_class(&semesters[0].data, 0, "MTH101");
-//     push_assignment(0, 0, "Limits and Derivatives HW", "Solve problems on limits and basic derivatives from textbook", "10/01/2025", "17/01/2025");
-//     push_assignment(0, 0, "Quiz: Integration", "Review integration techniques for upcoming quiz", "15/01/2025", "18/01/2025");
-
-//     push_class(&semesters[0].data, 0, "CPE111");
-//     push_assignment(0, 1, "Lab 1: Hello World in C", "Write and compile your first C program printing 'Hello World'", "11/01/2025", "13/01/2025");
-
-//     push_class(&semesters[0].data, 0, "CPE123");
-//     push_class(&semesters[0].data, 0, "CPE100");
-//     push_class(&semesters[0].data, 0, "CPE101");
-//     push_class(&semesters[0].data, 0, "LNG221");
-
-//     // --------------------------------------------------------
-
-//     push_class(&semesters[1].data, 1, "MTH102");
-//     push_assignment(1, 0, "Series and Sequences HW", "Complete all sequence-related exercises from textbook", "01/05/2025", "07/05/2025");
-//     push_assignment(1, 0, "Differential Equations Quiz", "Revise topics from lecture 5 to 8", "01/05/2025", "05/05/2025");
-
-//     push_class(&semesters[1].data, 1, "PHY103");
-//     push_assignment(1, 1, "Lab: Newton’s Laws", "Lab report on Newton’s Second Law experiment", "02/05/2025", "09/05/2025");
-//     push_assignment(1, 1, "Project: Gravity Simulator", "Build a gravity simulator in Python", "02/05/2025", "16/05/2025");
-
-//     push_class(&semesters[1].data, 1, "CPE121");
-//     push_assignment(1, 2, "Assembler Exercise", "Translate simple C code to assembly", "03/05/2025", "08/05/2025");
-//     push_assignment(1, 2, "Machine Code Challenge", "Manually write machine instructions for given tasks", "03/05/2025", "10/05/2025");
-
-//     push_class(&semesters[1].data, 1, "CPE112");
-//     push_assignment(1, 3, "Teamwork Reflection", "Write a 1-page reflection on team collaboration", "04/05/2025", "06/05/2025");
-//     push_assignment(1, 3, "Presentation Slides", "Create slides for next week's team project", "04/05/2025", "11/05/2025");
-
-//     push_class(&semesters[1].data, 1, "GEN121");
-//     push_assignment(1, 4, "Critical Thinking Report", "Analyze a social issue using logical reasoning", "05/05/2025", "12/05/2025");
-//     push_assignment(1, 4, "Case Study Analysis", "Break down a real-world case study provided in class", "05/05/2025", "14/05/2025");
-
-//     push_class(&semesters[1].data, 1, "LNG222");
-//     push_assignment(1, 5, "Listening Practice", "Watch a TED Talk and take notes", "06/05/2025", "09/05/2025");
-//     push_assignment(1, 5, "Speaking Assessment", "Prepare a 2-minute speech about your weekend", "06/05/2025", "10/05/2025");
-
-
-
-//     if (semesters[0].priority > semesters[1].priority) {
-//         Semester temp = semesters[0];
-//         semesters[0] = semesters[1];
-//         semesters[1] = temp;
-
-//         Class tempClasses[MAX_CLASSES];
-//         memcpy(tempClasses, classObjects[0], sizeof(tempClasses));
-//         memcpy(classObjects[0], classObjects[1], sizeof(tempClasses));
-//         memcpy(classObjects[1], tempClasses, sizeof(tempClasses));
-//     }
-
-//     int current = 0;
-
-//     while (1) {
-//         printf("\n--------------------------------------------------------\n\n");
-//         printf("\033[1mLEB2\033[0m\n\n");
-//         printf("  Classes: %s\n\n", semesters[current].label);
-//         for (int i = 0; i < semesters[current].data.count; i++) {
-//             printf("  [%d] %s\n", i + 1, semesters[current].data.classes[i].name);
-//         }
-
-//         printf("\n  [p] Previous  [n] Next  [b] Back\n\n");
-//         printf("command: ");
-
-//         char input[10];
-//         scanf("%s", input);
-
-//         if (strlen(input) == 1 && isdigit(input[0])) {
-//             int idx = input[0] - '0' - 1;
-//             if (idx >= 0 && idx < semesters[current].data.count) {
-//                 class_page(&classObjects[current][idx]);
-//             } else {
-//                 printf("\n\033[0;31mInvalid Class Number\033[0m\n");
-//             }
-//         } else {
-//             char cmd = tolower(input[0]);
-//             switch (cmd) {
-//                 case 'p':
-//                     if (current < 1) current++;
-//                     else printf("\n\033[0;31mNo previous semester.\033[0m\n");
-//                     break;
-//                 case 'n':
-//                     if (current > 0) current--;
-//                     else printf("\n\033[0;31mNo next semester.\033[0m\n");
-//                     break;
-//                 case 'b':
-//                     return;
-//                 default:
-//                     printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
-//                     break;
-//             }
-//         }
-//     }
-// }
-
-
 #include "../leb2-page.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
-void class_page(Class* classData);
-
-LEB2 leb2;
-
-Class* create_class(const char* name) {
-    Class* newClass = (Class*)malloc(sizeof(Class));
-    newClass->classId = strdup(name);
-    newClass->assignmentList = NULL;
-    newClass->dashboard = NULL;
-    newClass->syllabus = NULL;
-    newClass->learningActivityList = NULL;
-    newClass->attendanceList = NULL;
-    newClass->scoreBookList = NULL;
-    newClass->learnItList = NULL;
-    newClass->fileList = NULL;
-    newClass->survey = NULL;
-    newClass->memberList = NULL;
-    return newClass;
-}
-
-void push_class(SemesterList* sem, const char* name) {
-    ClassList* newNode = (ClassList*)malloc(sizeof(ClassList));
-    newNode->class = *create_class(name);
-    newNode->next = NULL;
-    newNode->prev = NULL;
-
-    if (!sem->semester.classList) {
-        sem->semester.classList = newNode;
-    } else {
-        ClassList* tail = sem->semester.classList;
-        while (tail->next) tail = tail->next;
-        tail->next = newNode;
-        newNode->prev = tail;
+void LEB2Page(Auth* auth) {
+    if (auth == NULL || auth->userData == NULL || auth->userData->leb2 == NULL) {
+        LogMsg("Error: Invalid auth data or LEB2 data not loaded");
+        return;
     }
-}
 
-void push_assignment(Class* classObj, const char* title, const char* desc, DateTime assignDate, DateTime dueDate) {
-    AssignmentList* newAssign = (AssignmentList*)malloc(sizeof(AssignmentList));
-    newAssign->assignment.head = strdup(title);
-    newAssign->assignment.description = strdup(desc);
-    newAssign->assignment.assignDate = assignDate;
-    newAssign->assignment.dueDate = dueDate;
-    newAssign->assignment.done = false;
-    newAssign->next = NULL;
-    newAssign->prev = NULL;
-
-    if (!classObj->assignmentList) {
-        classObj->assignmentList = newAssign;
-    } else {
-        AssignmentList* tail = classObj->assignmentList;
-        while (tail->next) tail = tail->next;
-        tail->next = newAssign;
-        newAssign->prev = tail;
+    LEB2* leb2 = auth->userData->leb2;
+    if (leb2->semesterList == NULL) {
+        printf("\n\033[0;31mNo semesters available\033[0m\n");
+        return;
     }
-}
 
-void leb2page() {
-    SemesterList* sem1 = (SemesterList*)malloc(sizeof(SemesterList));
-    SemesterList* sem2 = (SemesterList*)malloc(sizeof(SemesterList));
-
-    sem1->semester.semesterId = strdup("Semester 1");
-    sem1->semester.priority = 2;
-    sem1->semester.classList = NULL;
-    sem1->next = sem2;
-    sem1->prev = NULL;
-
-    sem2->semester.semesterId = strdup("Semester 2");
-    sem2->semester.priority = 1;
-    sem2->semester.classList = NULL;
-    sem2->next = NULL;
-    sem2->prev = sem1;
-
-    leb2.semesterList = sem1;
-
-    push_class(sem1, "MTH101");
-    push_class(sem1, "CPE111");
-    push_class(sem1, "CPE123");
-    push_class(sem1, "CPE100");
-    push_class(sem1, "CPE101");
-    push_class(sem1, "LNG221");
-
-    push_class(sem2, "MTH102");
-    push_class(sem2, "PHY103");
-    push_class(sem2, "CPE121");
-    push_class(sem2, "CPE112");
-    push_class(sem2, "GEN121");
-    push_class(sem2, "LNG222");
-
-    DateTime d1 = {10, 1, 2025};
-    DateTime d2 = {17, 1, 2025};
-    push_assignment(&sem1->semester.classList->class, "Limits and Derivatives HW", "Solve problems on limits and basic derivatives from textbook", d1, d2);
+    // Find the last semester (highest year, then highest term)
+    SemesterList* current = leb2->semesterList;
+    SemesterList* lastSemester = current;
     
-    int current = 0;
-    SemesterList* semesters[] = {sem1, sem2};
+    while (current != NULL) {
+        if (current->semester.year > lastSemester->semester.year || 
+            (current->semester.year == lastSemester->semester.year && 
+             current->semester.term > lastSemester->semester.term)) {
+            lastSemester = current;
+        }
+        current = current->next;
+    }
+    
+    // Start with the last semester
+    current = lastSemester;
+    ShowSemester(current);
+}
 
-    while (1) {
+void ShowSemester(SemesterList* currentSemester) {
+    if (currentSemester == NULL) {
+        printf("\n\033[0;31mInvalid semester\033[0m\n");
+        return;
+    }
+
+    char cmd;
+    while(1) {
         printf("\n--------------------------------------------------------\n\n");
-        printf("\033[1mLEB2\033[0m\n\n");
-        printf("  Classes: %s\n\n", semesters[current]->semester.semesterId);
-
-        int index = 1;
-        for (ClassList* cl = semesters[current]->semester.classList; cl != NULL; cl = cl->next, index++) {
-            printf("  [%d] %s\n", index, cl->class.classId);
+        printf("\033[1mSemester %d-%d\033[0m\n\n", 
+               currentSemester->semester.year, 
+               currentSemester->semester.term);
+        
+        ShowClassSection(&(currentSemester->semester));
+        
+        printf("\n  [n] Next semester\n");
+        printf("  [p] Previous semester\n");
+        printf("  [c] Select class\n");
+        printf("  [b] Back to home page\n\n");
+        
+        if(!requestCommand(&cmd)){
+            printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
+            continue;
         }
 
-        printf("\n  [p] Previous  [n] Next  [b] Back\n\n");
-        printf("command: ");
-
-        char input[10];
-        scanf("%s", input);
-
-        if (strlen(input) == 1 && isdigit(input[0])) {
-            int idx = input[0] - '0';
-            ClassList* cl = semesters[current]->semester.classList;
-            while (cl && --idx > 0) cl = cl->next;
-            if (cl) {
-                class_page(&cl->class);
-            } else {
-                printf("\n\033[0;31mInvalid Class Number\033[0m\n");
-            }
-        } else {
-            char cmd = tolower(input[0]);
-            switch (cmd) {
-                case 'p':
-                    if (current < 1) current++;
-                    else printf("\n\033[0;31mNo previous semester.\033[0m\n");
-                    break;
-                case 'n':
-                    if (current > 0) current--;
-                    else printf("\n\033[0;31mNo next semester.\033[0m\n");
-                    break;
-                case 'b':
-                    return;
-                default:
-                    printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
-                    break;
-            }
+        switch (cmd) {
+            case 'n':
+                if (currentSemester->next != NULL) {
+                    return ShowSemester(currentSemester->next);
+                } else {
+                    printf("\n\033[0;31mNo next semester available\033[0m\n");
+                }
+                break;
+            case 'p':
+                if (currentSemester->prev != NULL) {
+                    return ShowSemester(currentSemester->prev);
+                } else {
+                    printf("\n\033[0;31mNo previous semester available\033[0m\n");
+                }
+                break;
+            case 'c':
+                ClassSelectionPage(&(currentSemester->semester));
+                break;
+            case 'b':
+                return;
+            default:
+                printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
+                continue;
         }
     }
+}
+
+void ShowClassSection(Semester* semester) {
+    if (semester == NULL || semester->classList == NULL) {
+        printf("  No classes available for this semester\n");
+        return;
+    }
+
+    printf("  Available Classes:\n");
+    
+    ClassList* current = semester->classList;
+    int index = 1;
+    
+    while (current != NULL) {
+        printf("  [%d] %s\n", index++, current->class.classId);
+        current = current->next;
+    }
+}
+
+void ClassSelectionPage(Semester* semester) {
+    if (semester == NULL || semester->classList == NULL) {
+        printf("No classes available to select\n");
+        return;
+    }
+
+    int classCount = 0;
+    ClassList* current = semester->classList;
+    while (current != NULL) {
+        classCount++;
+        current = current->next;
+    }
+
+    char input[10];
+    int selection;
+    printf("Enter class number (1-%d): ", classCount);
+    if (scanf("%s", input) != 1) {
+        printf("\n\033[0;31mInvalid input\033[0m\n");
+        // Clear input buffer
+        while (getchar() != '\n');
+        return;
+    }
+    
+    selection = atoi(input);
+    if (selection < 1 || selection > classCount) {
+        printf("\n\033[0;31mInvalid class number\033[0m\n");
+        return;
+    }
+
+    // Find selected class
+    current = semester->classList;
+    for (int i = 1; i < selection; i++) {
+        current = current->next;
+    }
+
+    // View class details
+    ClassDetailsPage(&(current->class));
+}
+
+void ClassDetailsPage(Class* class) {
+    if (class == NULL) {
+        printf("Error: Invalid class data\n");
+        return;
+    }
+
+    char cmd[10];
+    int selection;
+    
+    while(1) {
+        printf("\n--------------------------------------------------------\n\n");
+        printf("\033[1mClass: %s\033[0m\n\n", class->classId);
+        
+        printf("  [1] Dashboard\n");
+        printf("  [2] Syllabus\n");
+        printf("  [3] Assignments\n");
+        printf("  [4] Learning Activities\n");
+        printf("  [5] Attendance\n");
+        printf("  [6] ScoreBook\n");
+        printf("  [7] LearnIt\n");
+        printf("  [8] Files\n");
+        printf("  [9] Survey\n");
+        printf("  [0] Class Members\n");
+        printf("\n  [b] Back to class selection\n\n");
+        
+        printf("Enter your selection: ");
+        if (scanf("%s", cmd) != 1) {
+            printf("\n\033[0;31mInvalid input\033[0m\n");
+            // Clear input buffer
+            while (getchar() != '\n');
+            continue;
+        }
+        
+        // Check if command is 'b' for back
+        if (cmd[0] == 'b' && cmd[1] == '\0') {
+            return;
+        }
+        
+        // Try to parse as number
+        selection = atoi(cmd);
+        
+        switch (selection) {
+            case 1:
+                DashboardPage(class->dashboard);
+                break;
+            case 2:
+                SyllabusPage(class->syllabus);
+                break;
+            case 3:
+                AssignmentListPage(class->assignmentList);
+                break;
+            case 4:
+                LearningActivityListPage(class->learningActivityList);
+                break;
+            case 5:
+                AttendanceListPage(class->attendanceList);
+                break;
+            case 6:
+                ScoreBookListPage(class->scoreBookList);
+                break;
+            case 7:
+                LearnItListPage(class->learnItList);
+                break;
+            case 8:
+                FileListPage(class->fileList);
+                break;
+            case 9:
+                SurveyPage(class->survey);
+                break;
+            case 0:
+                MemberListPage(class->memberList);
+                break;
+            default:
+                printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
+                continue;
+        }
+    }
+}
+
+void DashboardPage(Dashboard* dashboard) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mDashboard\033[0m\n\n");
+    
+    if (dashboard == NULL) {
+        printf("  No dashboard available\n");
+    } else {
+        printf("  %s\n", dashboard->description);
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void SyllabusPage(Syllabus* syllabus) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mSyllabus\033[0m\n\n");
+    
+    if (syllabus == NULL) {
+        printf("  No syllabus available\n");
+    } else {
+        printf("  %s\n", syllabus->description);
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void AssignmentListPage(AssignmentList* assignmentList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mAssignments\033[0m\n\n");
+    error err = NULL;
+
+    if (assignmentList == NULL) {
+        printf("  No assignments available\n");
+    } else {
+        AssignmentList* current = assignmentList;
+        int index = 1;
+        
+        while (current != NULL) {
+            string assignDate = NULL; 
+            string dueDate = NULL;
+            
+            err = dateTimeToString(&assignDate, current->assignment.assignDate);
+            if (err != NULL) {
+                Error(err);
+                return;
+            }
+            
+            err = dateTimeToString(&dueDate, current->assignment.dueDate);
+            if (err != NULL) {
+                Error(err);
+                FreeString(&assignDate);
+                return;
+            }
+            
+            printf("  [%d] %s\n", index++, current->assignment.head);
+            printf("     Description: %s\n", current->assignment.description);
+            printf("     Assigned: %s\n", assignDate);
+            printf("     Due: %s\n\n", dueDate);
+            
+            FreeString(&assignDate);
+            FreeString(&dueDate);
+            
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void LearningActivityListPage(LearningActivityList* learningActivityList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mLearning Activities\033[0m\n\n");
+    
+    if (learningActivityList == NULL) {
+        printf("  No learning activities available\n");
+    } else {
+        LearningActivityList* current = learningActivityList;
+        int index = 1;
+        
+        while (current != NULL) {
+            printf("  [%d] %s\n", index++, current->learningActivity.head);
+            printf("     Description: %s\n", current->learningActivity.description);
+            if (current->learningActivity.url != NULL) {
+                printf("     URL: %s\n", current->learningActivity.url);
+            }
+            if (current->learningActivity.file != NULL) {
+                printf("     File: %s\n", current->learningActivity.file->filename.path);
+            }
+            printf("\n");
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void AttendanceListPage(AttendanceList* attendanceList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mAttendance\033[0m\n\n");
+    
+    if (attendanceList == NULL) {
+        printf("  No attendance records available\n");
+    } else {
+        AttendanceList* current = attendanceList;
+        int index = 1;
+        
+        while (current != NULL) {
+            string strDate = NULL;
+            error err = dateTimeToString(&strDate, current->attendance.date);
+            if (err != NULL) {
+                Error(err);
+                return;
+            }
+            
+            printf("  [%d] Date: %s\n", index++, strDate);
+            printf("     Status: %s\n\n", current->attendance.joined == 1 ? "Present" : "Absent");
+            
+            FreeString(&strDate);
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void ScoreBookListPage(ScoreBookList* scoreBookList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mScoreBook\033[0m\n\n");
+    
+    if (scoreBookList == NULL) {
+        printf("  No scores available\n");
+    } else {
+        ScoreBookList* current = scoreBookList;
+        int index = 1;
+        
+        while (current != NULL) {
+            printf("  [%d] %s\n", index++, current->scoreBook.head);
+            printf("     Description: %s\n", current->scoreBook.description);
+            printf("     Score: %.2f\n\n", current->scoreBook.score);
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void LearnItListPage(LearnItList* learnItList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mLearnIt Resources\033[0m\n\n");
+    
+    if (learnItList == NULL) {
+        printf("  No LearnIt resources available\n");
+    } else {
+        LearnItList* current = learnItList;
+        int index = 1;
+        
+        while (current != NULL) {
+            printf("  [%d] %s\n", index++, current->learnIt.name);
+            printf("     Description: %s\n", current->learnIt.description);
+            printf("     URL: %s\n\n", current->learnIt.url);
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void FileListPage(FileList* fileList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mFiles\033[0m\n\n");
+    
+    if (fileList == NULL) {
+        printf("  No files available\n");
+    } else {
+        FileList* current = fileList;
+        int index = 1;
+        
+        while (current != NULL) {
+            printf("  [%d] %s\n", index++, current->file.filename.path);
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void SurveyPage(Survey* survey) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mSurvey\033[0m\n\n");
+    
+    if (survey == NULL) {
+        printf("  No survey available\n");
+    } else {
+        printf("  Survey information not implemented yet\n");
+        // Note: The Survey struct in leb2.h is empty, so there's nothing to display yet
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void MemberListPage(MemberList* memberList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mClass Members\033[0m\n\n");
+    
+    if (memberList == NULL) {
+        printf("  No members available\n");
+    } else {
+        MemberList* current = memberList;
+        int index = 1;
+        
+        while (current != NULL) {
+            printf("  [%d] %s\n", index++, current->member.name);
+            printf("     Student ID: %s\n\n", current->member.studentId);
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
 }

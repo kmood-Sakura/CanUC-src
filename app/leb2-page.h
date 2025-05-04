@@ -3,47 +3,41 @@
 
 #include "../utils/common/log.h"
 #include "../utils/common/status.h"
+#include "../utils/common/request.h"
 
-#include "../utils/datatype/int-type.h"
 #include "../utils/datatype/string-type.h"
+#include "../utils/datatype/int-type.h"
+#include "../utils/datatype/char-type.h"
+#include "../utils/datatype/date-type.h"
 
 #include "../utils/struct/path.h"
 #include "../utils/struct/file.h"
 #include "../utils/struct/auth.h"
+#include "../utils/struct/leb2.h"
 
-#define MAX_CLASSES 100
-#define MAX_SEMESTERS 10
-#define MAX_ASSIGNMENTS 10
+#include "../service/update-db.h"
 
-// typedef struct {
-//     char name[100];
-// } myClass;
+// Main LEB2 page function
+void LEB2Page(Auth* auth);
 
-// typedef struct {
-//     myClass classes[MAX_CLASSES];
-//     int count;
-// } SemesterData;
+// Semester functions
+void ShowSemester(SemesterList* currentSemester);
+void ShowClassSection(Semester* semester);
 
-// typedef struct {
-//     SemesterData data;
-//     int priority;
-//     char label[100];
-// } mySemester;
+// Navigation functions
+void ClassSelectionPage(Semester* semester);
+void ClassDetailsPage(Class* class);
 
-// typedef struct {
-//     char title[100];
-//     char description[256];
-//     char assignedDate[20];
-//     char dueDate[20];
-//     int done;
-// } myAssignment;
-
-// typedef struct {
-//     char name[20];
-//     myAssignment assignments[MAX_ASSIGNMENTS];
-//     int assignmentCount;
-// } ClassData;
-
-void leb2page();
+// Content display functions
+void DashboardPage(Dashboard* dashboard);
+void SyllabusPage(Syllabus* syllabus);
+void AssignmentListPage(AssignmentList* assignmentList);
+void LearningActivityListPage(LearningActivityList* learningActivityList);
+void AttendanceListPage(AttendanceList* attendanceList);
+void ScoreBookListPage(ScoreBookList* scoreBookList);
+void LearnItListPage(LearnItList* learnItList);
+void FileListPage(FileList* fileList);
+void SurveyPage(Survey* survey);
+void MemberListPage(MemberList* memberList);
 
 #endif
