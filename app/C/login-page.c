@@ -56,7 +56,6 @@ code LoginPage(Auth* auth) {
                 continue;
             }
         }
-        // invalid input -> exit login page
         return 0;
     }
     LogMsg("Too many attempts. Exit Login page\n");
@@ -81,15 +80,17 @@ code SignupPage(Auth* auth) {
     }
     LogMsg("Too many attempts. Exit Sign-up page\n");
     return 0; 
+    LogMsg("Too many attempts. Exit Login page\n");
+    return AuthenPage(auth); // Too many attempts, return to authentication page
 }
 
 code AuthInputField(Auth* auth) {
     if (auth->studentId != NULL || auth->password != NULL) {
         return -1; // Invalid auth data
     }
-    // printf("Please enter your student ID and password (nothing default to exit) \n");
+    printf("Please enter your student ID and password (nothing default to exit) \n");
     
-    code status = requestString(&auth->studentId, MAX_STUDENT_ID, "  Student ID");
+    code status = requestString(&auth->studentId, MAX_STUDENT_ID, "Student ID");
     if (status != 1) {
         FreeString(&auth->studentId); // Free student ID string
         printf("Confirm exit\n");
@@ -117,6 +118,7 @@ code Login(Auth* auth) {
         FreeStatusContent(&status); // Free status
         return 0; // Failed to setup database
     }
+    LogMsg("Doing authentication...\n");
     status = Authenticate(auth);
     if (!LogFatal(&status)) {
         FreeAuthContent(auth);
@@ -128,14 +130,6 @@ code Login(Auth* auth) {
         FreeStatusContent(&status); // Free status
         printf("Do you want to sign up?\n");
         if (requestConfirm()) return -1;
-        return 0;
-    }
-
-    status = LoadUserDataAPI(auth); // Load user data API
-
-    if (!LogFatal(&status)) {
-        FreeAuthContent(auth);
-        FreeStatusContent(&status);
         return 0;
     }
     return 1; // Success

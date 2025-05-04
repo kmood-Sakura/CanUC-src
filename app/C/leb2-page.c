@@ -1,10 +1,461 @@
 #include "../leb2-page.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
-void leb2page(){
-    printf("fuck you");
+void LEB2Page(Auth* auth) {
+    if (auth == NULL || auth->userData == NULL || auth->userData->leb2 == NULL) {
+        LogMsg("Error: Invalid auth data or LEB2 data not loaded");
+        return;
+    }
+
+    LEB2* leb2 = auth->userData->leb2;
+    if (leb2->semesterList == NULL) {
+        printf("\n\033[0;31mNo semesters available\033[0m\n");
+        return;
+    }
+
+    // Find the last semester (highest year, then highest term)
+    SemesterList* current = leb2->semesterList;
+    SemesterList* lastSemester = current;
+    
+    while (current != NULL) {
+        if (current->semester.year > lastSemester->semester.year || 
+            (current->semester.year == lastSemester->semester.year && 
+             current->semester.term > lastSemester->semester.term)) {
+            lastSemester = current;
+        }
+        current = current->next;
+    }
+    
+    // Start with the last semester
+    current = lastSemester;
+    ShowSemester(current);
+}
+
+void ShowSemester(SemesterList* currentSemester) {
+    if (currentSemester == NULL) {
+        printf("\n\033[0;31mInvalid semester\033[0m\n");
+        return;
+    }
+
+    char cmd;
+    while(1) {
+        printf("\n--------------------------------------------------------\n\n");
+        printf("\033[1mSemester %d-%d\033[0m\n\n", 
+               currentSemester->semester.year, 
+               currentSemester->semester.term);
+        
+        ShowClassSection(&(currentSemester->semester));
+        
+        printf("\n  [n] Next semester\n");
+        printf("  [p] Previous semester\n");
+        printf("  [c] Select class\n");
+        printf("  [b] Back to home page\n\n");
+        
+        if(!requestCommand(&cmd)){
+            printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
+            continue;
+        }
+
+        switch (cmd) {
+            case 'n':
+                if (currentSemester->next != NULL) {
+                    return ShowSemester(currentSemester->next);
+                } else {
+                    printf("\n\033[0;31mNo next semester available\033[0m\n");
+                }
+                break;
+            case 'p':
+                if (currentSemester->prev != NULL) {
+                    return ShowSemester(currentSemester->prev);
+                } else {
+                    printf("\n\033[0;31mNo previous semester available\033[0m\n");
+                }
+                break;
+            case 'c':
+                ClassSelectionPage(&(currentSemester->semester));
+                break;
+            case 'b':
+                return;
+            default:
+                printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
+                continue;
+        }
+    }
+}
+
+void ShowClassSection(Semester* semester) {
+    if (semester == NULL || semester->classList == NULL) {
+        printf("  No classes available for this semester\n");
+        return;
+    }
+
+    printf("  Available Classes:\n");
+    
+    ClassList* current = semester->classList;
+    int index = 1;
+    
+    while (current != NULL) {
+        printf("  [%d] %s\n", index++, current->class.classId);
+        current = current->next;
+    }
+}
+
+void ClassSelectionPage(Semester* semester) {
+    if (semester == NULL || semester->classList == NULL) {
+        printf("No classes available to select\n");
+        return;
+    }
+
+    int classCount = 0;
+    ClassList* current = semester->classList;
+    while (current != NULL) {
+        classCount++;
+        current = current->next;
+    }
+
+    char input[10];
+    int selection;
+    printf("Enter class number (1-%d): ", classCount);
+    if (scanf("%s", input) != 1) {
+        printf("\n\033[0;31mInvalid input\033[0m\n");
+        // Clear input buffer
+        while (getchar() != '\n');
+        return;
+    }
+    
+    selection = atoi(input);
+    if (selection < 1 || selection > classCount) {
+        printf("\n\033[0;31mInvalid class number\033[0m\n");
+        return;
+    }
+
+    // Find selected class
+    current = semester->classList;
+    for (int i = 1; i < selection; i++) {
+        current = current->next;
+    }
+
+    // View class details
+    ClassDetailsPage(&(current->class));
+}
+
+void ClassDetailsPage(Class* class) {
+    if (class == NULL) {
+        printf("Error: Invalid class data\n");
+        return;
+    }
+
+    char cmd[10];
+    int selection;
+    
+    while(1) {
+        printf("\n--------------------------------------------------------\n\n");
+        printf("\033[1mClass: %s\033[0m\n\n", class->classId);
+        
+        printf("  [1] Dashboard\n");
+        printf("  [2] Syllabus\n");
+        printf("  [3] Assignments\n");
+        printf("  [4] Learning Activities\n");
+        printf("  [5] Attendance\n");
+        printf("  [6] ScoreBook\n");
+        printf("  [7] LearnIt\n");
+        printf("  [8] Files\n");
+        printf("  [9] Survey\n");
+        printf("  [0] Class Members\n");
+        printf("\n  [b] Back to class selection\n\n");
+        
+        printf("Enter your selection: ");
+        if (scanf("%s", cmd) != 1) {
+            printf("\n\033[0;31mInvalid input\033[0m\n");
+            // Clear input buffer
+            while (getchar() != '\n');
+            continue;
+        }
+        
+        // Check if command is 'b' for back
+        if (cmd[0] == 'b' && cmd[1] == '\0') {
+            return;
+        }
+        
+        // Try to parse as number
+        selection = atoi(cmd);
+        
+        switch (selection) {
+            case 1:
+                DashboardPage(class->dashboard);
+                break;
+            case 2:
+                SyllabusPage(class->syllabus);
+                break;
+            case 3:
+                AssignmentListPage(class->assignmentList);
+                break;
+            case 4:
+                LearningActivityListPage(class->learningActivityList);
+                break;
+            case 5:
+                AttendanceListPage(class->attendanceList);
+                break;
+            case 6:
+                ScoreBookListPage(class->scoreBookList);
+                break;
+            case 7:
+                LearnItListPage(class->learnItList);
+                break;
+            case 8:
+                FileListPage(class->fileList);
+                break;
+            case 9:
+                SurveyPage(class->survey);
+                break;
+            case 0:
+                MemberListPage(class->memberList);
+                break;
+            default:
+                printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
+                continue;
+        }
+    }
+}
+
+void DashboardPage(Dashboard* dashboard) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mDashboard\033[0m\n\n");
+    
+    if (dashboard == NULL) {
+        printf("  No dashboard available\n");
+    } else {
+        printf("  %s\n", dashboard->description);
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void SyllabusPage(Syllabus* syllabus) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mSyllabus\033[0m\n\n");
+    
+    if (syllabus == NULL) {
+        printf("  No syllabus available\n");
+    } else {
+        printf("  %s\n", syllabus->description);
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void AssignmentListPage(AssignmentList* assignmentList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mAssignments\033[0m\n\n");
+    error err = NULL;
+
+    if (assignmentList == NULL) {
+        printf("  No assignments available\n");
+    } else {
+        AssignmentList* current = assignmentList;
+        int index = 1;
+        
+        while (current != NULL) {
+            string assignDate = NULL; 
+            string dueDate = NULL;
+            
+            err = dateTimeToString(&assignDate, current->assignment.assignDate);
+            if (err != NULL) {
+                Error(err);
+                return;
+            }
+            
+            err = dateTimeToString(&dueDate, current->assignment.dueDate);
+            if (err != NULL) {
+                Error(err);
+                FreeString(&assignDate);
+                return;
+            }
+            
+            printf("  [%d] %s\n", index++, current->assignment.head);
+            printf("     Description: %s\n", current->assignment.description);
+            printf("     Assigned: %s\n", assignDate);
+            printf("     Due: %s\n\n", dueDate);
+            
+            FreeString(&assignDate);
+            FreeString(&dueDate);
+            
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void LearningActivityListPage(LearningActivityList* learningActivityList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mLearning Activities\033[0m\n\n");
+    
+    if (learningActivityList == NULL) {
+        printf("  No learning activities available\n");
+    } else {
+        LearningActivityList* current = learningActivityList;
+        int index = 1;
+        
+        while (current != NULL) {
+            printf("  [%d] %s\n", index++, current->learningActivity.head);
+            printf("     Description: %s\n", current->learningActivity.description);
+            if (current->learningActivity.url != NULL) {
+                printf("     URL: %s\n", current->learningActivity.url);
+            }
+            if (current->learningActivity.file != NULL) {
+                printf("     File: %s\n", current->learningActivity.file->filename.path);
+            }
+            printf("\n");
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void AttendanceListPage(AttendanceList* attendanceList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mAttendance\033[0m\n\n");
+    
+    if (attendanceList == NULL) {
+        printf("  No attendance records available\n");
+    } else {
+        AttendanceList* current = attendanceList;
+        int index = 1;
+        
+        while (current != NULL) {
+            string strDate = NULL;
+            error err = dateTimeToString(&strDate, current->attendance.date);
+            if (err != NULL) {
+                Error(err);
+                return;
+            }
+            
+            printf("  [%d] Date: %s\n", index++, strDate);
+            printf("     Status: %s\n\n", current->attendance.joined == 1 ? "Present" : "Absent");
+            
+            FreeString(&strDate);
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void ScoreBookListPage(ScoreBookList* scoreBookList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mScoreBook\033[0m\n\n");
+    
+    if (scoreBookList == NULL) {
+        printf("  No scores available\n");
+    } else {
+        ScoreBookList* current = scoreBookList;
+        int index = 1;
+        
+        while (current != NULL) {
+            printf("  [%d] %s\n", index++, current->scoreBook.head);
+            printf("     Description: %s\n", current->scoreBook.description);
+            printf("     Score: %.2f\n\n", current->scoreBook.score);
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void LearnItListPage(LearnItList* learnItList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mLearnIt Resources\033[0m\n\n");
+    
+    if (learnItList == NULL) {
+        printf("  No LearnIt resources available\n");
+    } else {
+        LearnItList* current = learnItList;
+        int index = 1;
+        
+        while (current != NULL) {
+            printf("  [%d] %s\n", index++, current->learnIt.name);
+            printf("     Description: %s\n", current->learnIt.description);
+            printf("     URL: %s\n\n", current->learnIt.url);
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void FileListPage(FileList* fileList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mFiles\033[0m\n\n");
+    
+    if (fileList == NULL) {
+        printf("  No files available\n");
+    } else {
+        FileList* current = fileList;
+        int index = 1;
+        
+        while (current != NULL) {
+            printf("  [%d] %s\n", index++, current->file.filename.path);
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void SurveyPage(Survey* survey) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mSurvey\033[0m\n\n");
+    
+    if (survey == NULL) {
+        printf("  No survey available\n");
+    } else {
+        printf("  Survey information not implemented yet\n");
+        // Note: The Survey struct in leb2.h is empty, so there's nothing to display yet
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
+}
+
+void MemberListPage(MemberList* memberList) {
+    printf("\n--------------------------------------------------------\n\n");
+    printf("\033[1mClass Members\033[0m\n\n");
+    
+    if (memberList == NULL) {
+        printf("  No members available\n");
+    } else {
+        MemberList* current = memberList;
+        int index = 1;
+        
+        while (current != NULL) {
+            printf("  [%d] %s\n", index++, current->member.name);
+            printf("     Student ID: %s\n\n", current->member.studentId);
+            current = current->next;
+        }
+    }
+    
+    printf("\nPress Enter to continue...");
+    getchar(); // Wait for user input
+    while (getchar() != '\n'); // Clear input buffer
 }

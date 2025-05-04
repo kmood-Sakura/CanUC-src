@@ -1,43 +1,51 @@
 #include "../home-page.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-#include "../../service/update-db.h"
-#include "../../utils/struct/path.h"
-
 void HomePage(Auth* auth) {
     // LogMsg("Welcome to the Main Page!");
     if (AuthenPage(auth) != 1) return;
-    printf("\033[1mHome page\033[0m\n\n");
+    printf("Welcome, User\n");
 
     FetchBaseSystem(auth); // Fetch base system data
-
-    printf("  [1] LEB2\n  [2] Calendar\n  [3] Notification\n\n  [e] Exit\n");
+    LogMsg("Loading user data...\n");
+    Status status = LoadUserDataAPI(auth); // Load user data API
+    if (!LogFatal(&status)) {
+        FreeAuthContent(auth);
+        FreeStatusContent(&status);
+        return;
+    }
     while(1) {
+        printf("\n--------------------------------------------------------\n\n");
+        printf("\033[1mHome page\033[0m\n\n");
+
+        // FetchSystem(auth);
+
+        printf("  [1] LEB2\n  [2] Calendar\n  [3] Notification\n\n  [e] Exit\n\n");
         char cmd;
-        printf("\ncommand: ");
-        scanf(" %c",&cmd);
-        cmd = toupper(cmd);
-        switch (cmd){
-            case '1': 
-                leb2page();
+        if(!requestCommand(&cmd)){
+            printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
+            continue;
+        }
+
+        switch (cmd) {
+            case '1': LEB2Page(auth);
                 break;
             case '2':
                 break;
             case '3': 
                 break;
-            case 'E': 
-                printf("Exiting the system. Goodbye!\n");
-                exit(200);
-            
+            case 'e': 
+                printf("\nExiting the system. Goodbye!\n");
+                printf("\n--------------------------------------------------------\n\n");
+                return;
             default:
-                printf("Invalid Command. Please Enter Again\n");
-                break;
+                printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
+                continue;
         }
-    }
+    }    
 }
 
 void FetchBaseSystem(Auth* auth) {
@@ -49,11 +57,13 @@ void FetchBaseSystem(Auth* auth) {
     if (!LogFatal(&status)) {
         return;
     }
+    LogMsg("Temporary data created successfully!\n");
     status = LoadAllUserAppDataPathAPI(auth); // Load all user app data path
     if (!LogFatal(&status)) {
         return;
     }
-    // PrintDataPath(auth->dataPath);
-    // LogMsg("Database load successful!");
+    LogMsg("Loaded base system data successfully!\n");
+    PrintDataPath(auth->dataPath);
+    LogMsg("Database load successful!");
 }
 //updatetee

@@ -14,5 +14,10 @@
 
 Status LoadUserDataAPI(Auth* auth);
 Status LoadAllUserAppDataPathAPI(Auth* auth); // Load all user app data path
+Status LoadLEB2Data(Auth* auth); // Load all LEB2 data
+error LoadSemesterData(Auth* auth, DataPath* leb2DataPath); // Load semester data
+error LoadClassData(Auth* auth, DataPath* semesterDataPath, Semester* semester); // Load class data
+error LoadAssignment(DataPath* classDataPath, Class* class); // Load assignment data
+
 //update
 #endif // LOAD_USER_DATA_H
