@@ -10,8 +10,9 @@ code AuthenPage(Auth* auth) {
     char cmd;
     while(1){
         printf("\n--------------------------------------------------------\n\n");
-        printf("\033[1mAuthentication Page\033[0m\n\n");
+        printf("\033[1mAuthentication\033[0m\n\n");
         printf("  [1] Login\n  [2] Sign up\n\n  [e] Exit\n\n");
+        printf("  \033[0;93mIf you already have an account please login... please 🥺\033[0m\n\n");
         if(!requestCommand(&cmd)){
             printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
             continue;
@@ -34,7 +35,7 @@ code LoginPage(Auth* auth) {
     code code = 0;
     for(uint8 i=0;i<3;i++) {
         printf("\n--------------------------------------------------------\n\n");
-        printf("  \033[1mLogin page\033[0m\n\n");
+        printf("  \033[1mLogin\033[0m\n\n");
         if(AuthInputField(auth)){
             // LogMsg("Input field success\n");
             code = Login(auth);

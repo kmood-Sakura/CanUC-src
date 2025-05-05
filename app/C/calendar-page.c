@@ -11,13 +11,13 @@ void CalendarPage(Auth* auth) {
     
     while(1) {
         printf("\n--------------------------------------------------------\n\n");
-        printf("\033[1mCalendar Page\033[0m\n\n");
+        printf("\033[1mCalendar\033[0m\n\n");
         
-        printf("  [1] Show Today's Calendar\n");
+        printf("  [1] Today's Task\n");
         printf("  [2] Add Task\n");
         printf("  [3] Remove Task\n");
-        printf("  [4] Navigate to Date\n");
-        printf("  [b] Back to home page\n\n");
+        printf("  [4] Search by Date\n\n");
+        printf("  [b] Back\n\n");
         
         if(!requestCommand(&cmd)) {
             printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
@@ -28,7 +28,8 @@ void CalendarPage(Auth* auth) {
         switch (cmd) {
             case '1':
                 showTodayCalendar(auth);
-                if (!LogFatal(&status)) {
+                if (status.code != 1) {
+                    printf("\n\033[0;31mNo tasks found for this date.\033[0m\n");
                 }
                 break;
             case '2':
@@ -82,7 +83,7 @@ error showCalendarForDate(Auth* auth, Date date) {
     printf("\033[1mCalendar for %s\033[0m\n\n", dateStr);
 
     Status status = LoadCalendarFromFile(auth, date);
-    if (!LogFatal(&status)) {
+    if (status.code != 1) {
         return status.msg;
     }
 
@@ -295,9 +296,9 @@ void printCalendarTasks(Calendar* calendar) {
         return;
     }
 
-    printf("\n+----------------+------------+--------------+-------------+----------------------+\n");
-    printf("|  Task Title    |   Date     | Start Time   | End Time    | Location             |\n");
-    printf("+----------------+------------+--------------+-------------+----------------------+\n");
+    printf("\n+----------------+------------+--------------+-------------+--------------------------------+\n");
+    printf("| Task Title     | Date       | Start Time   | End Time    | Location                       |\n");
+    printf("+----------------+------------+--------------+-------------+--------------------------------+\n");
     
     TaskList* current = calendar->taskList;
     while (current) {
@@ -306,7 +307,7 @@ void printCalendarTasks(Calendar* calendar) {
         if (err == NULL) {
             err = dateTimeToString(&endStr, current->task.setEnd);
             if (err == NULL) {
-                printf("| %-14s | %-10.10s | %-12.5s | %-11.5s | %-20s |\n",
+                printf("| %-14s | %-10.10s | %-12.5s | %-11.5s | %-30s |\n",
                     current->task.title, 
                     beginStr, 
                     beginStr + 11,
@@ -322,7 +323,7 @@ void printCalendarTasks(Calendar* calendar) {
         current = current->next;
     }
     
-    printf("+----------------+------------+--------------+-------------+----------------------+\n");
+    printf("+----------------+------------+--------------+-------------+--------------------------------+\n");
 }
 
 Status navigateToDate(Auth* auth) {
@@ -331,7 +332,7 @@ Status navigateToDate(Auth* auth) {
     }
     
     printf("\n--------------------------------------------------------\n\n");
-    printf("\033[1mNavigate to Date\033[0m\n\n");
+    printf("\033[1mSearch by Date\033[0m\n\n");
     
     string dateInput = NULL;
     code result = requestString(&dateInput, 20, "Enter Date (YYYY-MM-DD)");

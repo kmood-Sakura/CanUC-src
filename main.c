@@ -12,6 +12,6 @@ int main() {
     HomePage(&auth); // Start the main page
 
     FreeAuthContent(&auth); // Free auth structure
-    LogMsg("Exiting the app..."); // Log exit message
+    // LogMsg("Exiting the app..."); // Log exit message
     return 0;
 }

@@ -281,7 +281,7 @@ Status LoadCalendarFromFile(Auth* auth, Date date) {
         return SetStatus(0, "Failed to create full path", err);
     }
     
-    printf("Loading file: %s\n", fullPath);
+    // printf("Loading file: %s\n", fullPath);
 
     // Check if file exists
     if (!FileExist(fullPath)) {

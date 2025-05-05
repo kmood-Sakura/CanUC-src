@@ -42,16 +42,14 @@ void ShowSemester(SemesterList* currentSemester) {
     char cmd;
     while(1) {
         printf("\n--------------------------------------------------------\n\n");
-        printf("\033[1mSemester %d-%d\033[0m\n\n", 
+        printf("\033[1mLEB2\033[0m\n\n");
+        printf("\033[1mSemester %d/%d\033[0m\n", 
                currentSemester->semester.year, 
                currentSemester->semester.term);
         
         ShowClassSection(&(currentSemester->semester));
         
-        printf("\n  [n] Next semester\n");
-        printf("  [p] Previous semester\n");
-        printf("  [c] Select class\n");
-        printf("  [b] Back to home page\n\n");
+        printf("\n  [n] Next  [p] Previous  [s] Select  [b] Back\n\n");
         
         if(!requestCommand(&cmd)){
             printf("\n\033[0;31mInvalid Command. Please Enter Again\033[0m\n");
@@ -73,7 +71,7 @@ void ShowSemester(SemesterList* currentSemester) {
                     printf("\n\033[0;31mNo previous semester available\033[0m\n");
                 }
                 break;
-            case 'c':
+            case 's':
                 ClassSelectionPage(&(currentSemester->semester));
                 break;
             case 'b':
@@ -91,7 +89,7 @@ void ShowClassSection(Semester* semester) {
         return;
     }
 
-    printf("  Available Classes:\n");
+    printf("Avaliable Classes: \n\n");
     
     ClassList* current = semester->classList;
     int index = 1;
@@ -117,7 +115,7 @@ void ClassSelectionPage(Semester* semester) {
 
     char input[10];
     int selection;
-    printf("Enter class number (1-%d): ", classCount);
+    printf("\nEnter class number (1-%d): ", classCount);
     if (scanf("%s", input) != 1) {
         printf("\n\033[0;31mInvalid input\033[0m\n");
         // Clear input buffer
@@ -164,9 +162,9 @@ void ClassDetailsPage(Class* class) {
         printf("  [8] Files\n");
         printf("  [9] Survey\n");
         printf("  [0] Class Members\n");
-        printf("\n  [b] Back to class selection\n\n");
+        printf("\n  [b] Back\n\n");
         
-        printf("Enter your selection: ");
+        printf("command: ");
         if (scanf("%s", cmd) != 1) {
             printf("\n\033[0;31mInvalid input\033[0m\n");
             // Clear input buffer
@@ -282,7 +280,7 @@ void AssignmentListPage(AssignmentList* assignmentList) {
             printf("  [%d] %s\n", index++, current->assignment.head);
             printf("     Description: %s\n", current->assignment.description);
             printf("     Assigned: %s\n", assignDate);
-            printf("     Due: %s\n\n", dueDate);
+            printf("     Due: %s\n", dueDate);
             
             FreeString(&assignDate);
             FreeString(&dueDate);
@@ -315,7 +313,6 @@ void LearningActivityListPage(LearningActivityList* learningActivityList) {
             if (current->learningActivity.file != NULL) {
                 printf("     File: %s\n", current->learningActivity.file->filename.path);
             }
-            printf("\n");
             current = current->next;
         }
     }
@@ -344,7 +341,7 @@ void AttendanceListPage(AttendanceList* attendanceList) {
             }
             
             printf("  [%d] Date: %s\n", index++, strDate);
-            printf("     Status: %s\n\n", current->attendance.joined == 1 ? "Present" : "Absent");
+            printf("     Status: %s\n", current->attendance.joined == 1 ? "Present" : "Absent");
             
             FreeString(&strDate);
             current = current->next;
@@ -369,7 +366,7 @@ void ScoreBookListPage(ScoreBookList* scoreBookList) {
         while (current != NULL) {
             printf("  [%d] %s\n", index++, current->scoreBook.head);
             printf("     Description: %s\n", current->scoreBook.description);
-            printf("     Score: %.2f\n\n", current->scoreBook.score);
+            printf("     Score: %.2f\n", current->scoreBook.score);
             current = current->next;
         }
     }
@@ -392,7 +389,7 @@ void LearnItListPage(LearnItList* learnItList) {
         while (current != NULL) {
             printf("  [%d] %s\n", index++, current->learnIt.name);
             printf("     Description: %s\n", current->learnIt.description);
-            printf("     URL: %s\n\n", current->learnIt.url);
+            printf("     URL: %s\n", current->learnIt.url);
             current = current->next;
         }
     }
@@ -451,7 +448,7 @@ void MemberListPage(MemberList* memberList) {
         
         while (current != NULL) {
             printf("  [%d] %s\n", index++, current->member.name);
-            printf("     Student ID: %s\n\n", current->member.studentId);
+            printf("     Student ID: %s\n", current->member.studentId);
             current = current->next;
         }
     }
