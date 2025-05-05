@@ -187,7 +187,7 @@ Status updateCalendarFile(Auth* auth, Date date) {
         return SetStatus(0, "Failed to create full path", err);
     }
     
-    printf("Updating file: %s\n", fullPath);
+    // printf("Updating file: %s\n", fullPath);
     
     if (FileExist(fullPath)) {
         remove(fullPath);
@@ -437,42 +437,48 @@ Status removeTaskFromMemoryCalendar(Auth* auth, const string title, Date date) {
     TaskList* prev = NULL;
     code found = 0;
     
-    while (current) {
-        if (strcmp(current->task.title, title) == 0) {
+    while (current != NULL) {
+        // Check if this is the task to remove
+        if (current->task.title && strcmp(current->task.title, title) == 0) {
             found = 1;
-            
-            // Remove node from the linked list
+
             if (prev) {
                 prev->next = current->next;
-                if (current->next) {
-                    current->next->prev = prev;
-                }
             } else {
                 targetNode->calendar.taskList = current->next;
-                if (current->next) {
-                    current->next->prev = NULL;
-                }
             }
             
-            // Manually free each string in the task
-            if (current->task.title) {
-                FreeString(&current->task.title);
+            if (current->next) {
+                current->next->prev = prev;
             }
-            if (current->task.location) {
-                FreeString(&current->task.location);
+            
+            // Store next pointer before freeing
+            TaskList* toFree = current;
+            
+            // Free the task's string resources
+            if (toFree->task.title) {
+                FreeString(&toFree->task.title);
+            }
+            if (toFree->task.location) {
+                FreeString(&toFree->task.location);
             }
             
             // Free the node itself
-            free(current);
+            free(toFree);
             break;
         }
         
+        // Move to next node
         prev = current;
         current = current->next;
     }
     
     if (!found) {
         return SetStatus(0, "Task not found", "No task with the specified title found");
+    }
+    
+    if (targetNode->calendar.taskList == NULL) {
+        printf("Note: Calendar for this date is now empty\n");
     }
     
     return SetStatus(1, "Task removed from memory successfully", NULL);

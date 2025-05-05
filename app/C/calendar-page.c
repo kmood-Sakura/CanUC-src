@@ -34,17 +34,20 @@ void CalendarPage(Auth* auth) {
                 break;
             case '2':
                 status = addTask(auth);
-                if (!LogFatal(&status)){
+                if (status.code != 1) {
+                    printf("\n\033[0;31mFailed to add task: %s\033[0m\n", status.details);
                 }
                 break;
             case '3':
                 status = promptAndRemoveTask(auth);
-                if (!LogFatal(&status)) {
+                if (status.code != 1) {
+                    printf("\n\033[0;31mFailed to remove task: %s\033[0m\n", status.details);
                 }
                 break;
             case '4':
                 status = navigateToDate(auth);
-                if (!LogFatal(&status)) {
+                if (status.code != 1) {
+                    printf("\n\033[0;31mFailed to navigate to date: %s\033[0m\n", status.details);
                 }
                 break;
             case 'b':
@@ -207,9 +210,6 @@ Status addTask(Auth* auth) {
     }
     printf("\n\033[0;32mTask '%s' added successfully.\033[0m\n", newTask->title);
     
-    FreeTaskContent(newTask);
-    free(newTask);
-    
     return SetStatus(1, "Task added successfully", NULL);
 }
 
@@ -262,7 +262,7 @@ Status promptAndRemoveTask(Auth* auth) {
     }
 
     string titleToRemove = NULL;
-    result = requestString(&titleToRemove, 50, "\nEnter task title to remove: "); // Don't prompt again
+    result = requestString(&titleToRemove, 50, "\nEnter task title to remove "); // Don't prompt again
     if (result != 1 || titleToRemove == NULL) {
         return SetStatus(0, "Invalid task title", "Failed to get task title");
     }
