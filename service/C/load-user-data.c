@@ -130,8 +130,6 @@ error LoadSemesterData(Auth* auth, DataPath* leb2DataPath) {
         DataPath* semesterDataPath = leb2DataPath->Dir[i];
         if (semesterDataPath == NULL) continue;
         
-        printf("Sem : %s\n", semesterDataPath->filename.path);
-        
         Semester semester;
         sscanf(semesterDataPath->filename.path, "%hhu-%hhu", &semester.year, &semester.term);
         
@@ -182,8 +180,6 @@ error LoadClassData(Auth* auth, DataPath* semesterDataPath, Semester* semester) 
     for (uint16 j = 0; j < semesterDataPath->sizeDir; j++) {
         DataPath* classDataPath = semesterDataPath->Dir[j];
         if (classDataPath == NULL) continue;
-        
-        printf("Class : %s\n", classDataPath->filename.path);
         
         Class class;
         class.classId = NULL;

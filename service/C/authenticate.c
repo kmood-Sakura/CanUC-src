@@ -35,6 +35,7 @@ Status Authenticate(Auth* auth) {
     }
     
     free(auth->password);
+    auth->password = NULL; // Clear password after use
 
     memset(line, 0, sizeof(line));
     fclose(file);

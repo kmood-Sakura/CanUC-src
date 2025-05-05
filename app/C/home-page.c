@@ -5,7 +5,7 @@
 #include <ctype.h>
 
 void HomePage(Auth* auth) {
-    // LogMsg("Welcome to the Main Page!");
+    if (auth == NULL) return;
     if (AuthenPage(auth) != 1) return;
     printf("Welcome, User\n");
 
@@ -33,7 +33,7 @@ void HomePage(Auth* auth) {
         switch (cmd) {
             case '1': LEB2Page(auth);
                 break;
-            case '2': showMenu(auth);
+            case '2': CalendarPage(auth);
                 break;
             case '3': 
                 break;
@@ -53,17 +53,23 @@ void FetchBaseSystem(Auth* auth) {
     Status status;
     initStatus(&status);
 
-    status = MakeTempData(auth); // Make temporary data
-    if (!LogFatal(&status)) {
-        return;
-    }
     LogMsg("Temporary data created successfully!\n");
     status = LoadAllUserAppDataPathAPI(auth); // Load all user app data path
     if (!LogFatal(&status)) {
         return;
     }
-    LogMsg("Loaded base system data successfully!\n");
-    PrintDataPath(auth->dataPath);
-    LogMsg("Database load successful!");
+    DataPath* baseLeb2 = NULL;
+    error err = findDataPathByFilename(auth->dataPath, "LEB2", &baseLeb2); // Find LEB2 data path
+    if (err != NULL) {
+        LogMsg("Failed to find LEB2 data path\n");
+        return;
+    }
+    if (baseLeb2->sizeDir == 0) {
+        status = MakeTempData(auth); // Create temporary data
+        if (!LogFatal(&status)) {
+            return;
+        }
+        return;
+    }
 }
 //updatetee

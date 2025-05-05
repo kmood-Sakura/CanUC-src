@@ -77,25 +77,24 @@ code SignupPage(Auth* auth) {
 
 code AuthInputField(Auth* auth) {
     if (auth->studentId != NULL || auth->password != NULL) {
-        return -1; // Invalid auth data
+        return -1;
     }
     // printf("Please enter your student ID and password (nothing default to exit) \n");
     
     code status = requestString(&auth->studentId, MAX_STUDENT_ID, "  Student ID");
     if (status != 1) {
-        FreeString(&auth->studentId); // Free student ID string
+        FreeString(&auth->studentId);
         printf("Confirm exit\n");
         if (requestConfirm()) return 0;
-        return AuthInputField(auth); // Retry input
+        return AuthInputField(auth);
     }
     status = requestString(&auth->password, MAX_PASSWORD_LEN, "  Password");
-    status = requestString(&auth->password, MAX_PASSWORD_LEN, "  Password");
     if (status != 1) {
-        FreeString(&auth->studentId); // Free student ID string
-        FreeString(&auth->password); // Free password string
+        FreeString(&auth->studentId);
+        FreeString(&auth->password);
         printf("Confirm exit\n");
         if (requestConfirm()) return 0;
-        return AuthInputField(auth); // Retry input
+        return AuthInputField(auth);
     }
     return 1;
 }
@@ -103,11 +102,11 @@ code AuthInputField(Auth* auth) {
 code Login(Auth* auth) {
     Status status;
     initStatus(&status);
-    status = SetUpDataBase(auth); // Setup database
+    status = SetUpDataBase(auth);
     if (!LogFatal(&status)) {
-        FreeAuthContent(auth); // Free auth data
-        FreeStatusContent(&status); // Free status
-        return 0; // Failed to setup database
+        FreeAuthContent(auth);
+        FreeStatusContent(&status);
+        return 0;
     }
     status = Authenticate(auth);
     if (!LogFatal(&status)) {
@@ -116,30 +115,30 @@ code Login(Auth* auth) {
         return 0;
     }
     if(status.code == -1) {
-        FreeAuthContent(auth); // Free auth data
-        FreeStatusContent(&status); // Free status
+        // request Sign up process
+        FreeAuthContent(auth);
+        FreeStatusContent(&status);
         printf("Do you want to sign up?\n");
         if (requestConfirm()) return -1;
         return 0;
     }
-    return 1; // Success
+    return 1;
 }
 
 code Signup(Auth* auth) {
-    // LogMsg("Doing sign up...\n");
     Status status;
     initStatus(&status);
-    status = SetUpDataBase(auth); // Setup database
+    status = SetUpDataBase(auth);
     if (!LogFatal(&status)) {
-        FreeAuthContent(auth); // Free auth data
-        FreeStatusContent(&status); // Free status
-        return 0; // Failed to setup database
+        FreeAuthContent(auth);
+        FreeStatusContent(&status);
+        return 0;
     }
-    status = SetupAuthenticate(auth); // Setup authentication
+    status = SetupAuthenticate(auth);
     if (!LogFatal(&status)) {
-        FreeAuthContent(auth); // Free auth data
-        FreeStatusContent(&status); // Free status
-        return 0; // Failed to setup authentication
+        FreeAuthContent(auth);
+        FreeStatusContent(&status);
+        return 0;
     }
     
     return 1;
@@ -147,10 +146,8 @@ code Signup(Auth* auth) {
 
 code Logout(Auth* auth) {
     if (auth == NULL) {
-        return 0; // Invalid auth data
+        return 0;
     }
-    FreeAuthContent(auth); // Free auth data
-    return 1; // Success
+    FreeAuthContent(auth);
+    return 1;
 }
-
-//update

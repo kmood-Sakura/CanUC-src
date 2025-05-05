@@ -7,22 +7,26 @@
 
 #include "../utils/struct/calendar.h"
 #include "../utils/struct/auth.h"
+#include "../utils/struct/path.h"
+#include "../utils/struct/file.h"
 
 #include "../utils/datatype/date-type.h"
+#include "../utils/datatype/string-type.h"
+#include "../utils/datatype/int-type.h"
 
-/*void addTask(Calendar* calendar, Task task);
-void removeTask(Calendar* calendar, const char* title);
-Task* findTaskByTitle(const Calendar* calendar, const char* title);
-void printCalendar(const Calendar* calendar);
+#include "../service/calendar-service.h"
+
 void CalendarPage(Auth* auth);
-void ShowCalendarPath(Auth* auth);
-void printMenu(); */
 
-void showMenu(Auth* auth);
-void showTodayCalendar(Auth* auth);
-void addTask(Auth* auth);
-void promptAndRemoveTask(Auth* auth);
+Status addTask(Auth* auth);
+Status showTodayCalendar(Auth* auth);
+Status promptAndRemoveTask(Auth* auth);
+Status navigateToDate(Auth* auth);
 
+error showCalendarForDate(Auth* auth, Date date);
+Status createTaskEntry(Task** task, string title, string location, Date date, int startHour, int startMinute, int endHour, int endMinute);
+Date getTodayDate(void);
+void printCalendarTasks(Calendar* calendar);
 
 
 #endif 
