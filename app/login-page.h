@@ -10,12 +10,12 @@
 #include "../service/update-db.h"
 #include "../service/authenticate.h"
 
-code AuthenPage(Auth* auth); // authentication page
-code SignupPage(Auth* auth); // sign up page
-code LoginPage(Auth* auth); // login page
-code AuthInputField(Auth* auth); // login field
-code Login(Auth* auth); // login function
-code Signup(Auth* auth); // sign up function
-code Logout(Auth* auth); // logout function
-//update
-#endif // LOGIN_PAGE_H
+code AuthenPage(Auth* auth);
+code SignupPage(Auth* auth);
+code LoginPage(Auth* auth);
+code AuthInputField(Auth* auth);
+code Login(Auth* auth);
+code Signup(Auth* auth);
+code Logout(Auth* auth);
+
+#endif

@@ -7,11 +7,10 @@
 int main() {
     printf("\n");
     Auth auth;
-    initAuth(&auth); // Initialize auth structure
+    initAuth(&auth);
 
-    HomePage(&auth); // Start the main page
+    HomePage(&auth);
 
-    FreeAuthContent(&auth); // Free auth structure
-    // LogMsg("Exiting the app..."); // Log exit message
+    Logout(&auth);
     return 0;
 }

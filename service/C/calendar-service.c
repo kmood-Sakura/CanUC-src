@@ -12,16 +12,13 @@ Status addTaskToMemoryCalendar(Auth* auth, Task* task, Date date) {
     CalendarList* targetNode = NULL;
     error err = findCalendarByDate(&targetNode, auth, date);
 
-    // Check if task time overlaps with existing tasks
     if (err == NULL && targetNode != NULL) {
         TaskList* current = targetNode->calendar.taskList;
         while (current) {
-            // Check if new task overlaps with an existing task
             if ((task->setBegin >= current->task.setBegin && task->setBegin < current->task.setEnd) ||
                 (task->setEnd > current->task.setBegin && task->setEnd <= current->task.setEnd) ||
                 (task->setBegin <= current->task.setBegin && task->setEnd >= current->task.setEnd)) {
                 
-                // Convert times to strings for error message
                 string newBeginStr = NULL, newEndStr = NULL;
                 string existingBeginStr = NULL, existingEndStr = NULL;
                 
@@ -37,7 +34,6 @@ Status addTaskToMemoryCalendar(Auth* auth, Task* task, Date date) {
                          current->task.title, 
                          existingBeginStr, existingEndStr);
                 
-                // Free allocated strings
                 FreeString(&newBeginStr);
                 FreeString(&newEndStr);
                 FreeString(&existingBeginStr);
@@ -50,7 +46,6 @@ Status addTaskToMemoryCalendar(Auth* auth, Task* task, Date date) {
     }
 
     if (err == NULL && targetNode != NULL) {
-        // Calendar found, add task to it
         TaskList* newNode = NULL;
         err = allocateTaskList(&newNode);
         if (err != NULL) {
@@ -63,36 +58,29 @@ Status addTaskToMemoryCalendar(Auth* auth, Task* task, Date date) {
             return SetStatus(0, "Failed to create task copy", err);
         }
         
-        // Insert task in chronological order
         if (targetNode->calendar.taskList == NULL) {
-            // First task in the calendar
             targetNode->calendar.taskList = newNode;
             newNode->next = NULL;
             newNode->prev = NULL;
         } else {
-            // Find proper position based on start time
             TaskList* current = targetNode->calendar.taskList;
             TaskList* prev = NULL;
             
-            // Find position to insert based on start time
             while (current && current->task.setBegin <= newNode->task.setBegin) {
                 prev = current;
                 current = current->next;
             }
             
             if (prev == NULL) {
-                // Insert at beginning
                 newNode->next = targetNode->calendar.taskList;
                 newNode->prev = NULL;
                 targetNode->calendar.taskList->prev = newNode;
                 targetNode->calendar.taskList = newNode;
             } else if (current == NULL) {
-                // Insert at end
                 prev->next = newNode;
                 newNode->prev = prev;
                 newNode->next = NULL;
             } else {
-                // Insert in middle
                 newNode->next = current;
                 newNode->prev = prev;
                 prev->next = newNode;
@@ -100,7 +88,6 @@ Status addTaskToMemoryCalendar(Auth* auth, Task* task, Date date) {
             }
         }
     } else {
-        // Calendar not found, create new one
         Calendar* newCalendar = NULL;
         err = allocateCalendar(&newCalendar);
         if (err != NULL) {
@@ -149,28 +136,24 @@ Status updateCalendarFile(Auth* auth, Date date) {
         return SetStatus(0, "Invalid parameters", "Auth or dataPath is NULL");
     }
     
-    // First check if the calendar exists in memory
     CalendarList* targetNode = NULL;
     error err = findCalendarByDate(&targetNode, auth, date);
     if (err != NULL) {
         return SetStatus(0, "Calendar not found in memory", err);
     }
     
-    // Find the Calendar directory path
     DataPath* calPath = NULL;
     err = findDataPathByFilename(auth->dataPath, "Calendar", &calPath);
     if (err != NULL) {
         return SetStatus(0, "Failed to find Calendar dataPath", err);
     }
     
-    // Convert date to string for filename
     string dateStr = NULL;
     err = dateToString(&dateStr, &date);
     if (err != NULL) {
         return SetStatus(0, "Failed to convert date to string", err);
     }
     
-    // Create the filename with extension
     string fullFilename = NULL;
     err = mergeTwoStrings(&fullFilename, dateStr, ".csv");
     if (err != NULL) {
@@ -179,15 +162,12 @@ Status updateCalendarFile(Auth* auth, Date date) {
     }
     FreeString(&dateStr); 
 
-    // Get the complete file path
     string fullPath = NULL;
     err = mergeTwoStrings(&fullPath, calPath->path.path, fullFilename);
     if (err != NULL) {
         FreeString(&fullFilename);
         return SetStatus(0, "Failed to create full path", err);
     }
-    
-    // printf("Updating file: %s\n", fullPath);
     
     if (FileExist(fullPath)) {
         remove(fullPath);
@@ -205,7 +185,7 @@ Status updateCalendarFile(Auth* auth, Date date) {
     if (targetNode && targetNode->calendar.taskList) {
         TaskList* head = targetNode->calendar.taskList;
         while(head && head->prev) {
-            head = head->prev; // Move to the head of the list
+            head = head->prev;
         }
         TaskList* current = head;
         
@@ -243,59 +223,49 @@ Status LoadCalendarFromFile(Auth* auth, Date date) {
         return SetStatus(0, "Invalid parameters", "Auth, userData, or dataPath is NULL");
     }
     
-    // Check if calendar already exists in memory
     CalendarList* existingCalendar = NULL;
     error err = findCalendarByDate(&existingCalendar, auth, date);
     if (err == NULL && existingCalendar != NULL) {
         return SetStatus(1, "Calendar already loaded in memory", NULL);
     }
     
-    // Find the Calendar directory path
     DataPath* calPath = NULL;
     err = findDataPathByFilename(auth->dataPath, "Calendar", &calPath);
     if (err != NULL) {
         return SetStatus(0, "Failed to find Calendar dataPath", err);
     }
     
-    // Convert date to string for filename
     string dateStr = NULL;
     err = dateToString(&dateStr, &date);
     if (err != NULL) {
         return SetStatus(0, "Failed to convert date to string", err);
     }
     
-    // Create the filename with extension
     string fullFilename = NULL;
     err = mergeTwoStrings(&fullFilename, dateStr, ".csv");
     if (err != NULL) {
         FreeString(&dateStr);
         return SetStatus(0, "Failed to create filename", err);
     }
-    FreeString(&dateStr); // Free dateStr as we now have fullFilename
+    FreeString(&dateStr);
 
-    // Get the complete file path
     string fullPath = NULL;
     err = mergeTwoStrings(&fullPath, calPath->path.path, fullFilename);
     if (err != NULL) {
         FreeString(&fullFilename);
         return SetStatus(0, "Failed to create full path", err);
     }
-    
-    // printf("Loading file: %s\n", fullPath);
 
-    // Check if file exists
     if (!FileExist(fullPath)) {
         FreeString(&fullFilename);
         FreeString(&fullPath);
         return SetStatus(0, "Calendar file doesn't exist", "No calendar for this date");
     }
     
-    // Create new calendar
     Calendar newCalendar;
     newCalendar.date = date;
     newCalendar.taskList = NULL;
     
-    // Open file for reading
     FILE* file = fopen(fullPath, "r");
     if (!file) {
         FreeString(&fullFilename);
@@ -303,10 +273,8 @@ Status LoadCalendarFromFile(Auth* auth, Date date) {
         return SetStatus(0, "Failed to open calendar file for reading", "File open error");
     }
     
-    // Skip the header line
     char line[256];
     if (fgets(line, sizeof(line), file) == NULL) {
-        // Empty file, just add empty calendar to list
         fclose(file);
         FreeString(&fullFilename);
         FreeString(&fullPath);
@@ -319,7 +287,6 @@ Status LoadCalendarFromFile(Auth* auth, Date date) {
         return SetStatus(1, "Empty calendar loaded successfully", NULL);
     }
     
-    // Read each line and create tasks
     while (fgets(line, sizeof(line), file)) {
         Task* task = NULL;
         err = allocateTask(&task);
@@ -330,11 +297,9 @@ Status LoadCalendarFromFile(Auth* auth, Date date) {
         
         char title[50], location[50], beginStr[25], endStr[25];
         
-        // Parse the line
         if (sscanf(line, "%49[^,],%24[^,],%24[^,],%49[^\n]",
                   title, beginStr, endStr, location) == 4) {
             
-            // Allocate and set title
             err = allocateStringLen(&task->title, title, strlen(title));
             if (err != NULL) {
                 Error(err);
@@ -342,7 +307,6 @@ Status LoadCalendarFromFile(Auth* auth, Date date) {
                 continue;
             }
             
-            // Allocate and set location
             err = allocateStringLen(&task->location, location, strlen(location));
             if (err != NULL) {
                 Error(err);
@@ -351,7 +315,6 @@ Status LoadCalendarFromFile(Auth* auth, Date date) {
                 continue;
             }
             
-            // Parse begin time
             err = stringToDateTime(&task->setBegin, beginStr);
             if (err != NULL) {
                 Error(err);
@@ -361,7 +324,6 @@ Status LoadCalendarFromFile(Auth* auth, Date date) {
                 continue;
             }
             
-            // Parse end time
             err = stringToDateTime(&task->setEnd, endStr);
             if (err != NULL) {
                 Error(err);
@@ -371,10 +333,8 @@ Status LoadCalendarFromFile(Auth* auth, Date date) {
                 continue;
             }
             
-            // Set due date same as end time
             task->dueDate = task->setEnd;
             
-            // Create task list node
             TaskList* newTaskNode = NULL;
             err = allocateTaskList(&newTaskNode);
             if (err != NULL) {
@@ -384,11 +344,9 @@ Status LoadCalendarFromFile(Auth* auth, Date date) {
                 continue;
             }
             
-            // Copy task to node and free original task
             newTaskNode->task = *task;
             free(task);
             
-            // Add to task list
             if (newCalendar.taskList == NULL) {
                 newCalendar.taskList = newTaskNode;
                 newTaskNode->next = NULL;
@@ -406,17 +364,14 @@ Status LoadCalendarFromFile(Auth* auth, Date date) {
     FreeString(&fullFilename);
     FreeString(&fullPath);
     
-    // Add the calendar to the list
     err = addCalendarToList(&auth->userData->calendarList, newCalendar);
     if (err != NULL) {
-        // Free all the tasks we created if we can't add the calendar
         FreeTaskList(newCalendar.taskList);
         return SetStatus(0, "Failed to add calendar to list", err);
     }
     
     return SetStatus(1, "Calendar loaded successfully", NULL);
 }
-
 
 Status removeTaskFromMemoryCalendar(Auth* auth, const string title, Date date) {
     if (!auth || !auth->userData || !title) {
@@ -438,7 +393,6 @@ Status removeTaskFromMemoryCalendar(Auth* auth, const string title, Date date) {
     code found = 0;
     
     while (current != NULL) {
-        // Check if this is the task to remove
         if (current->task.title && strcmp(current->task.title, title) == 0) {
             found = 1;
 
@@ -452,10 +406,8 @@ Status removeTaskFromMemoryCalendar(Auth* auth, const string title, Date date) {
                 current->next->prev = prev;
             }
             
-            // Store next pointer before freeing
             TaskList* toFree = current;
             
-            // Free the task's string resources
             if (toFree->task.title) {
                 FreeString(&toFree->task.title);
             }
@@ -463,12 +415,10 @@ Status removeTaskFromMemoryCalendar(Auth* auth, const string title, Date date) {
                 FreeString(&toFree->task.location);
             }
             
-            // Free the node itself
             free(toFree);
             break;
         }
         
-        // Move to next node
         prev = current;
         current = current->next;
     }
@@ -497,11 +447,11 @@ error findCalendarByDate(CalendarList** calendarNode, Auth* auth, Date date) {
     while (current) {
         if (isSameDate(&current->calendar.date, &date)) {
             *calendarNode = current;
-            return NULL; // Success, no error
+            return NULL;
         }
         current = current->next;
     }
     
-    *calendarNode = NULL; // No matching calendar found
+    *calendarNode = NULL;
     return "Calendar not found for the specified date";
 }

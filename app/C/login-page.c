@@ -5,7 +5,7 @@
 
 code AuthenPage(Auth* auth) {
     if (auth == NULL) return 0;
-    if (auth->userData != NULL) return -1; // User data already exists
+    if (auth->userData != NULL) return -1;
 
     char cmd;
     while(1){
@@ -32,28 +32,37 @@ code AuthenPage(Auth* auth) {
 }
 
 code LoginPage(Auth* auth) {
-    code code = 0;
-    for(uint8 i=0;i<3;i++) {
+    code result = 0;
+    for(uint8 i=0; i<3; i++) {
         printf("\n--------------------------------------------------------\n\n");
         printf("  \033[1mLogin\033[0m\n\n");
-        if(AuthInputField(auth)){
-            // LogMsg("Input field success\n");
-            code = Login(auth);
-            if (code == 1) {
-                // LogMsg("Login success");
+        
+        if (auth->studentId != NULL) {
+            FreeString(&auth->studentId);
+        }
+        if (auth->password != NULL) {
+            FreeString(&auth->password);
+        }
+        
+        if(AuthInputField(auth)) {
+            result = Login(auth);
+            if (result == 1) {
                 return 1;
             }
-            if (code == -1) return Signup(auth);
-            if (code == 0) {
-                printf("Login failed. Please try again.\n");
-                continue;
+            if (result == -1) {
+                return Signup(auth);
             }
+            if (i < 2) {
+                printf("\n\033[0;31mLogin failed. Please try again.\033[0m\n\n");
+            }
+            continue;
         }
-        // invalid input -> exit login page
         return 0;
     }
-    LogMsg("Too many attempts. Exit Login page\n");
-    return AuthenPage(auth); // Too many attempts, return to authentication page
+    printf("\n\033[0;31mToo many attempts. Exit Login page\033[0m\n\n");
+    
+    FreeAuthContent(auth);
+    return AuthenPage(auth);
 }
 
 code SignupPage(Auth* auth) {
@@ -61,87 +70,102 @@ code SignupPage(Auth* auth) {
         printf("\n--------------------------------------------------------\n\n");
         printf("  \033[1mSign up page\033[0m\n\n");
         if(AuthInputField(auth)){
-            // LogMsg("Input field success\n");
             if (!Signup(auth)) {
-                printf("Sign up failed. Please try again.\n");
+                if (times < 2) {
+                    printf("\n\033[0;31mSign-up failed. Please try again.\033[0m\n\n");
+                }
                 continue;
             }
-            // LogMsg("Sign up success");
             return 1;
         }
-        // invalid input -> exit sign up page
         return AuthenPage(auth);
     }
-    LogMsg("Too many attempts. Exit Sign-up page\n");
+    printf("\n\033[0;31mToo many attempts. Exit Sign-up page\033[0m\n\n");
     return 0; 
 }
 
 code AuthInputField(Auth* auth) {
-    if (auth->studentId != NULL || auth->password != NULL) {
-        return -1;
+    if (auth == NULL) {
+        return 0;
     }
-    // printf("Please enter your student ID and password (nothing default to exit) \n");
+    
+    if (auth->studentId != NULL || auth->password != NULL) {
+        FreeString(&auth->studentId);
+        FreeString(&auth->password);
+    }
+    
+    printf("\033[0;34mPlease enter your student ID and password (nothing default to exit)\033[0m\n\n");
     
     code status = requestString(&auth->studentId, MAX_STUDENT_ID, "  Student ID");
     if (status != 1) {
-        FreeString(&auth->studentId);
+        if (auth->studentId != NULL) {
+            FreeString(&auth->studentId);
+        }
+        
         printf("Confirm exit\n");
         if (requestConfirm()) return 0;
         return AuthInputField(auth);
     }
+    
     status = requestString(&auth->password, MAX_PASSWORD_LEN, "  Password");
     if (status != 1) {
-        FreeString(&auth->studentId);
-        FreeString(&auth->password);
+        if (auth->studentId != NULL) {
+            FreeString(&auth->studentId);
+        }
+        if (auth->password != NULL) {
+            FreeString(&auth->password);
+        }
+        
         printf("Confirm exit\n");
         if (requestConfirm()) return 0;
         return AuthInputField(auth);
     }
+    
     return 1;
 }
 
 code Login(Auth* auth) {
     Status status;
     initStatus(&status);
-    status = SetUpDataBase(auth);
-    if (!LogFatal(&status)) {
-        FreeAuthContent(auth);
-        FreeStatusContent(&status);
-        return 0;
+    if (auth == NULL) return 0;
+    if (auth->dataPath == NULL) {
+        status = SetUpDataBase(auth);
+        if (!LogFatal(&status)) {
+            FreeAuthContent(auth);
+            return 0;
+        }
     }
+    
     status = Authenticate(auth);
-    if (!LogFatal(&status)) {
-        FreeAuthContent(auth);
-        FreeStatusContent(&status); 
+    if (status.code != 1) {
+        Error(status.details);
         return 0;
     }
+    
     if(status.code == -1) {
-        // request Sign up process
-        FreeAuthContent(auth);
-        FreeStatusContent(&status);
-        printf("Do you want to sign up?\n");
+        // Request Sign up process
+        printf("\033[0;34mDo you want to sign up?\033[0m\n\n");
         if (requestConfirm()) return -1;
         return 0;
     }
+    
     return 1;
 }
 
 code Signup(Auth* auth) {
     Status status;
     initStatus(&status);
-    status = SetUpDataBase(auth);
-    if (!LogFatal(&status)) {
-        FreeAuthContent(auth);
-        FreeStatusContent(&status);
-        return 0;
+    if (auth == NULL) return 0;
+    if (auth->dataPath == NULL) {
+        status = SetUpDataBase(auth);
+        if (!LogFatal(&status)) {
+            return 0;
+        }
     }
     status = SetupAuthenticate(auth);
     if (!LogFatal(&status)) {
-        FreeAuthContent(auth);
-        FreeStatusContent(&status);
         return 0;
     }
-    
     return 1;
 }
 

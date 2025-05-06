@@ -7,11 +7,8 @@
 void HomePage(Auth* auth) {
     if (auth == NULL) return;
     if (AuthenPage(auth) != 1) return;
-    // printf("Welcome, User\n");
-
-    FetchBaseSystem(auth); // Fetch base system data
-    // LogMsg("Loading user data...\n");
-    Status status = LoadUserDataAPI(auth); // Load user data API
+    FetchBaseSystem(auth);
+    Status status = LoadUserDataAPI(auth);
     if (!LogFatal(&status)) {
         FreeAuthContent(auth);
         FreeStatusContent(&status);
@@ -20,8 +17,6 @@ void HomePage(Auth* auth) {
     while(1) {
         printf("\n--------------------------------------------------------\n\n");
         printf("\033[1mHome\033[0m\n\n");
-
-        // FetchSystem(auth);
 
         printf("  [1] LEB2\n  [2] Calendar\n  [3] Notification\n\n  [e] Exit\n\n");
         char cmd;
@@ -35,7 +30,7 @@ void HomePage(Auth* auth) {
                 break;
             case '2': CalendarPage(auth);
                 break;
-            case '3': 
+            case '3': printf("\n\033[0;31mNotification feature is not implemented yet.\033[0m\n");
                 break;
             case 'e': 
                 printf("\nExiting the system, Byes 🫡\n");
@@ -53,19 +48,18 @@ void FetchBaseSystem(Auth* auth) {
     Status status;
     initStatus(&status);
 
-    // LogMsg("Temporary data created successfully!\n");
-    status = LoadAllUserAppDataPathAPI(auth); // Load all user app data path
+    status = LoadAllUserAppDataPathAPI(auth);
     if (!LogFatal(&status)) {
         return;
     }
     DataPath* baseLeb2 = NULL;
-    error err = findDataPathByFilename(auth->dataPath, "LEB2", &baseLeb2); // Find LEB2 data path
+    error err = findDataPathByFilename(auth->dataPath, "LEB2", &baseLeb2);
     if (err != NULL) {
         LogMsg("Failed to find LEB2 data path\n");
         return;
     }
     if (baseLeb2->sizeDir == 0) {
-        status = MakeTempData(auth); // Create temporary data
+        status = MakeTempData(auth);
         if (!LogFatal(&status)) {
             return;
         }

@@ -19,7 +19,7 @@
 #include "leb2-page.h"
 #include "calendar-page.h"
 
-void HomePage(Auth* auth); // Main page function
-void FetchBaseSystem(Auth* auth); // Fetch system function
-//update
-#endif // MAIN_PAGE_H
+void HomePage(Auth* auth);
+void FetchBaseSystem(Auth* auth);
+
+#endif

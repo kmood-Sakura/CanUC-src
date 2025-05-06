@@ -19,10 +19,16 @@ Status LoadAllUserAppDataPathAPI(Auth* auth);
 Status LoadLEB2Data(Auth* auth);
 error LoadSemesterData(Auth* auth, DataPath* leb2DataPath);
 error LoadClassData(Auth* auth, DataPath* semesterDataPath, Semester* semester);
+Status LoadAllClassData(Auth* auth, Class* class, DataPath* classDataPath);
+Status LoadSurvey(Auth* auth, Class* class, DataPath* classDataPath);
+Status LoadMember(Auth* auth, Class* class, DataPath* classDataPath);
+Status LoadDashboard(Auth* auth, Class* class, DataPath* classDataPath);
+Status LoadSyllabus(Auth* auth, Class* class, DataPath* classDataPath);
+Status LoadAssignment(Auth* auth, Class* class, DataPath* classDataPath);
 Status LoadLearningActivities(Auth* auth, Class* class, DataPath* classDataPath);
 Status LoadAttendance(Auth* auth, Class* class, DataPath* classDataPath);
 Status LoadScoreBook(Auth* auth, Class* class, DataPath* classDataPath);
-Status LoadAllClassData(Auth* auth, Class* class, DataPath* classDataPath);
-error LoadAssignment(DataPath* classDataPath, Class* class);
+Status LoadLearnIt(Auth* auth, Class* class, DataPath* classDataPath);
+Status LoadFileList(Auth* auth, Class* class, DataPath* classDataPath);
 
-#endif // LOAD_USER_DATA_H
+#endif

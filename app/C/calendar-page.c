@@ -267,15 +267,12 @@ Status promptAndRemoveTask(Auth* auth) {
         return SetStatus(0, "Invalid task title", "Failed to get task title");
     }
     
-    // Try to remove the task
     status = removeTaskFromMemoryCalendar(auth, titleToRemove, taskDate);
     if (!status.code) {
         printf("\n\033[0;31mFailed to remove task: %s\033[0m\n", status.msg);
         FreeString(&titleToRemove);
         return status;
     }
-    
-    // Update the file with the current tasks
     status = updateCalendarFile(auth, taskDate);
     if (!status.code) {
         LogMsg(status.msg);

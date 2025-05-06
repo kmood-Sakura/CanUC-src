@@ -10,7 +10,7 @@
 #include "../utils/common/log.h"
 #include "../utils/common/status.h"
 
-Status Authenticate(Auth* auth); // Authenticate function
-Status SetupAuthenticate(Auth* auth); // Setup authentication function
+Status Authenticate(Auth* auth);
+Status SetupAuthenticate(Auth* auth);
 
 #endif

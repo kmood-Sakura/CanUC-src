@@ -28,5 +28,4 @@ Status createTaskEntry(Task** task, string title, string location, Date date, in
 Date getTodayDate(void);
 void printCalendarTasks(Calendar* calendar);
 
-
 #endif 

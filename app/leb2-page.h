@@ -17,22 +17,18 @@
 
 #include "../service/update-db.h"
 
-// Main LEB2 page function
+#include "class-operation.h"
+
 void LEB2Page(Auth* auth);
 
-// Semester functions
 void ShowSemester(SemesterList* currentSemester);
 void ShowClassSection(Semester* semester);
-
-// Navigation functions
 void ClassSelectionPage(Semester* semester);
+
 void ClassDetailsPage(Class* class);
 
-// Content display functions
 void DashboardPage(Dashboard* dashboard);
 void SyllabusPage(Syllabus* syllabus);
-void AssignmentListPage(AssignmentList* assignmentList);
-void LearningActivityListPage(LearningActivityList* learningActivityList);
 void AttendanceListPage(AttendanceList* attendanceList);
 void ScoreBookListPage(ScoreBookList* scoreBookList);
 void LearnItListPage(LearnItList* learnItList);
