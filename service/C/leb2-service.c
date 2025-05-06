@@ -410,3 +410,117 @@ Status UpdateLearningActivityData(Auth* auth, Class* classnode) {
     
     return SetStatus(1, "Learning activity data updated successfully", NULL);
 }
+
+Status UpdateAssignmentFile(Auth* auth, Class* classnode, string classId, uint8 year, uint8 term) {
+    if (!auth || !auth->dataPath) {
+        return SetStatus(0, "Invalid parameters", "Auth or dataPath is NULL");
+    }
+    error err = NULL;
+    
+    DataPath* leb2Path = NULL;
+    err = findDataPathByFilename(auth->dataPath, "LEB2", &leb2Path);
+    if (err != NULL) {
+        return SetStatus(0, "Failed to find Calendar dataPath", err);
+    }
+    DataPath* semesterDir = NULL;
+    char semId[6];
+    snprintf(semId, sizeof(semId), "%hhu-%hhu", year, term);
+    string semesterId = NULL;
+    err = allocateString(&semesterId, semId);
+    if (err != NULL) {
+        return SetStatus(0, "Failed to allocate semesterId string", err);
+    }
+    err = findDataPathByFilename(leb2Path, semesterId, &semesterDir);
+    if (err != NULL || semesterDir == NULL) {
+        FreeString(&semesterId);
+        return SetStatus(0, "Failed to find semester directory", err ? err : "Semester directory not found");
+    }
+    FreeString(&semesterId);
+    DataPath* classDir = NULL;
+    err = findDataPathByFilename(semesterDir, classId, &classDir);
+    if (err != NULL || classDir == NULL) {
+        return SetStatus(0, "Failed to find class directory", err ? err : "Class directory not found");
+    }
+    DataPath* assignmentDir = NULL;
+    err = findDataPathByFilename(classDir, "AssignmentActivity", &assignmentDir);
+    if (err != NULL || assignmentDir == NULL) {
+        return SetStatus(0, "Failed to find AssignmentActivity directory", err ? err : "AssignmentActivity directory not found");
+    }
+    
+    Path filenamePath;
+    initPath(&filenamePath);
+    err = createPathLen(&filenamePath, "datalist.csv", 12);
+    if (err != NULL) {
+        return SetStatus(0, "Failed to create filename path", err);
+    }
+
+    string fullPath = NULL;
+    err = mergeTwoStrings(&fullPath, assignmentDir->path.path, filenamePath.path);
+    if (err != NULL) {
+        FreePathContent(&filenamePath);
+        return SetStatus(0, "Failed to create full path for assignment file", err);
+    }
+    
+    if (FileExist(fullPath)) {
+        remove(fullPath);
+    }
+
+    AssignmentList* head = NULL;
+    AssignmentList* current = classnode->assignmentList;
+    if (current == NULL) {
+        FreeString(&fullPath);
+        FreePathContent(&filenamePath);
+        return SetStatus(1, "No assignments available now", NULL);
+    }
+    while(current->prev != NULL) {
+        current = current->prev;
+    }
+    head = current;
+
+    FILE* file = fopen(fullPath, "w");
+    if (!file) {
+        FreeString(&fullPath);
+        FreePathContent(&filenamePath);
+        return SetStatus(0, "Failed to create assignment file for writing", "File open error");
+    }
+
+    fprintf(file, "Head,AssignDate,DueDate,Description\n");
+
+    while(head != NULL) {
+        string assignDateStr = NULL, dueDateStr = NULL;
+        err = dateTimeToString(&assignDateStr, head->assignment.assignDate);
+        if (err != NULL) {
+            Error(err);
+            FreeString(&fullPath);
+            FreePathContent(&filenamePath);
+            fclose(file);
+            return SetStatus(0, "Failed to convert assign date to string", err);
+        }
+        
+        err = dateTimeToString(&dueDateStr, head->assignment.dueDate);
+        if (err != NULL) {
+            Error(err);
+            FreeString(&assignDateStr);
+            FreeString(&fullPath);
+            FreePathContent(&filenamePath);
+            fclose(file);
+            return SetStatus(0, "Failed to convert due date to string", err);
+        }
+        
+        fprintf(file, "%s,%s,%s,%s\n", 
+                head->assignment.head, 
+                assignDateStr, 
+                dueDateStr,
+                head->assignment.description ? head->assignment.description : "");
+        
+        FreeString(&assignDateStr);
+        FreeString(&dueDateStr);
+        head = head->next;
+    }
+
+    fclose(file);
+    FreePathContent(&filenamePath);
+    FreeString(&fullPath);
+    
+    return SetStatus(1, "Assignment update successfully", NULL);
+}

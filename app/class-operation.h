@@ -18,16 +18,14 @@
 #include "../service/leb2-service.h"
 
 Status ShowAssignmentDetails(Auth* auth, Class* classnode);
-Status AddAssignment(Auth* auth, Class* classnode);
-Status RemoveAssignment(Auth* auth, Class* classnode);
-Status UpdateAssignmentFile(Auth* auth, Class* classnode);
+Status AddAssignment(Auth* auth, Class* classnode, uint8 year, uint8 term);
+Status RemoveAssignment(Auth* auth, Class* classnode, uint8 year, uint8 term);
 
 Status ShowLearningActivityDetails(Auth* auth, Class* classnode);
 Status AddLearningActivity(Auth* auth, Class* classnode);
 Status RemoveLearningActivity(Auth* auth, Class* classnode);
-Status UpdateLearningActivityFile(Auth* auth, Class* classnode);
 
-void ClassAssignmentPage(Auth* auth, Class* classnode);
+void ClassAssignmentPage(Auth* auth, Class* classnode, uint8 year, uint8 term);
 void ClassLearningActivityPage(Auth* auth, Class* classnode);
 
 #endif

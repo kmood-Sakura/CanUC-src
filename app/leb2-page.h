@@ -23,9 +23,9 @@ void LEB2Page(Auth* auth);
 
 void ShowSemester(SemesterList* currentSemester);
 void ShowClassSection(Semester* semester);
-void ClassSelectionPage(Semester* semester);
+void ClassSelectionPage(Semester* semester, uint8 year, uint8 term);
 
-void ClassDetailsPage(Class* class);
+void ClassDetailsPage(Class* class, uint8 year, uint8 term);
 
 void DashboardPage(Dashboard* dashboard);
 void SyllabusPage(Syllabus* syllabus);

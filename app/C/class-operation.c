@@ -56,7 +56,7 @@ Status ShowAssignmentDetails(Auth* auth, Class* class) {
     return SetStatus(1, "Assignment details displayed", NULL);
 }
 
-Status AddAssignment(Auth* auth, Class* class) {
+Status AddAssignment(Auth* auth, Class* class, uint8 year, uint8 term) {
     if (auth == NULL || class == NULL) {
         return SetStatus(0, "Invalid parameters", "Auth or class is NULL");
     }
@@ -141,6 +141,7 @@ Status AddAssignment(Auth* auth, Class* class) {
     FreeString(&title);
     FreeString(&description);
     
+    // Add assignment to the list
     if (class->assignmentList == NULL) {
         err = allocateAssignmentList(&class->assignmentList);
         if (err != NULL) {
@@ -164,7 +165,7 @@ Status AddAssignment(Auth* auth, Class* class) {
         }
     }
     
-    Status status = UpdateAssignmentFile(auth, class);
+    Status status = UpdateAssignmentFile(auth, class, class->classId, year, term);
     if (status.code != 1) {
         LogMsg("Warning: Failed to update assignment file");
         Error(status.msg);
@@ -174,7 +175,7 @@ Status AddAssignment(Auth* auth, Class* class) {
     return SetStatus(1, "Assignment added successfully", NULL);
 }
 
-Status RemoveAssignment(Auth* auth, Class* class) {
+Status RemoveAssignment(Auth* auth, Class* class, uint8 year, uint8 term) {
     if (auth == NULL || class == NULL) {
         return SetStatus(0, "Invalid parameters", "Auth or class is NULL");
     }
@@ -188,7 +189,7 @@ Status RemoveAssignment(Auth* auth, Class* class) {
     }
     
     string input = NULL;
-    printf("\nEnter the number of the assignment to remove ('C' or 'c' to cancel): ");
+    printf("\nEnter the number of the assignment to remove ('C' or 'c' to cancel)");
     code result = requestString(&input, 10, "");
     if (result != 1 || input == NULL) {
         return SetStatus(0, "Invalid input", "Failed to get input");
@@ -241,7 +242,7 @@ Status RemoveAssignment(Auth* auth, Class* class) {
     FreeAssignmentContents(&current->assignment);
     free(current);
     
-    status = UpdateAssignmentFile(auth, class);
+    status = UpdateAssignmentFile(auth, class, class->classId, year, term);
     if (status.code != 1) {
         LogMsg("Warning: Failed to update assignment file");
         Error(status.msg);
@@ -250,89 +251,6 @@ Status RemoveAssignment(Auth* auth, Class* class) {
     printf("\n\033[0;32mAssignment '%s' removed successfully.\033[0m\n", title);
     FreeString(&title);
     return SetStatus(1, "Assignment removed successfully", NULL);
-}
-
-Status UpdateAssignmentFile(Auth* auth, Class* class) {
-    if (auth == NULL || auth->dataPath == NULL || class == NULL) {
-        return SetStatus(0, "Invalid parameters", "Auth, dataPath or class is NULL");
-    }
-    
-    DataPath* classPath = NULL;
-    error err = findDataPathByFilename(auth->dataPath, class->classId, &classPath);
-    if (err != NULL || classPath == NULL) {
-        return SetStatus(0, "Failed to find class directory", err);
-    }
-    
-    DataPath* assignmentDir = NULL;
-    err = findDataPathByFilename(classPath, "AssignmentActivity", &assignmentDir);
-    if (err != NULL || assignmentDir == NULL) {
-        return SetStatus(0, "Failed to find AssignmentActivity directory", err);
-    }
-    
-    DataPath* datalistPath = NULL;
-    err = findDataPathByFilename(assignmentDir, "datalist.csv", &datalistPath);
-    if (err != NULL) {
-        File file;
-        err = createFileWithPath(&file, datalistPath->filename, assignmentDir->path, datalistPath->filename);
-        if (err != NULL) {
-            return SetStatus(0, "Failed to create datalist file path", err);
-        }
-        
-        err = MakeFile(&file);
-        if (err != NULL) {
-            FreeFileContent(&file);
-            return SetStatus(0, "Failed to create datalist file", err);
-        }
-        
-        FreeFileContent(&file);
-    }
-    
-    string fullPath = NULL;
-    err = mergeTwoStrings(&fullPath, assignmentDir->path.path, "/datalist.csv");
-    if (err != NULL) {
-        return SetStatus(0, "Failed to create full path for datalist", err);
-    }
-    
-    FILE* file = fopen(fullPath, "w");
-    if (!file) {
-        FreeString(&fullPath);
-        return SetStatus(0, "Failed to open datalist file for writing", "File open error");
-    }
-    
-    AssignmentList* current = class->assignmentList;
-    while (current != NULL) {
-        string assignDateStr = NULL, dueDateStr = NULL;
-        err = dateTimeToString(&assignDateStr, current->assignment.assignDate);
-        if (err != NULL) {
-            Error(err);
-            FreeString(&fullPath);
-            fclose(file);
-            return SetStatus(0, "Failed to convert assign date to string", err);
-        }
-        
-        err = dateTimeToString(&dueDateStr, current->assignment.dueDate);
-        if (err != NULL) {
-            Error(err);
-            FreeString(&assignDateStr);
-            FreeString(&fullPath);
-            fclose(file);
-            return SetStatus(0, "Failed to convert due date to string", err);
-        }
-        
-        fprintf(file, "%s,%s,%s,%s\n", 
-                current->assignment.head, 
-                assignDateStr, 
-                dueDateStr, 
-                current->assignment.description);
-        
-        FreeString(&assignDateStr);
-        FreeString(&dueDateStr);
-        current = current->next;
-    }
-    
-    fclose(file);
-    FreeString(&fullPath);
-    return SetStatus(1, "Assignment file updated successfully", NULL);
 }
 
 Status ShowLearningActivityDetails(Auth* auth, Class* class) {
@@ -460,11 +378,11 @@ Status AddLearningActivity(Auth* auth, Class* class) {
         }
     }
     
-    Status status = UpdateLearningActivityFile(auth, class);
-    if (status.code != 1) {
-        LogMsg("Warning: Failed to update learning activity file");
-        Error(status.msg);
-    }
+    // Status status = UpdateLearningActivityFile(auth, class);
+    // if (status.code != 1) {
+    //     LogMsg("Warning: Failed to update learning activity file");
+    //     Error(status.msg);
+    // }
     
     printf("\n\033[0;32mLearning Activity '%s' added successfully.\033[0m\n", activity.head);
     return SetStatus(1, "Learning Activity added successfully", NULL);
@@ -536,80 +454,18 @@ Status RemoveLearningActivity(Auth* auth, Class* class) {
     FreeLearningActivityContents(&current->learningActivity);
     free(current);
     
-    status = UpdateLearningActivityFile(auth, class);
-    if (status.code != 1) {
-        LogMsg("Warning: Failed to update learning activity file");
-        Error(status.msg);
-    }
+    // status = UpdateLearningActivityFile(auth, class);
+    // if (status.code != 1) {
+    //     LogMsg("Warning: Failed to update learning activity file");
+    //     Error(status.msg);
+    // }
     
     printf("\n\033[0;32mLearning Activity '%s' removed successfully.\033[0m\n", title);
     FreeString(&title);
     return SetStatus(1, "Learning Activity removed successfully", NULL);
 }
 
-Status UpdateLearningActivityFile(Auth* auth, Class* class) {
-    if (auth == NULL || auth->dataPath == NULL || class == NULL) {
-        return SetStatus(0, "Invalid parameters", "Auth, dataPath or class is NULL");
-    }
-    
-    DataPath* classPath = NULL;
-    error err = findDataPathByFilename(auth->dataPath, class->classId, &classPath);
-    if (err != NULL || classPath == NULL) {
-        return SetStatus(0, "Failed to find class directory", err);
-    }
-    
-    DataPath* learningActivityDir = NULL;
-    err = findDataPathByFilename(classPath, "LearningActivity", &learningActivityDir);
-    if (err != NULL || learningActivityDir == NULL) {
-        return SetStatus(0, "Failed to find LearningActivity directory", err);
-    }
-    
-    DataPath* datalistPath = NULL;
-    err = findDataPathByFilename(learningActivityDir, "datalist.csv", &datalistPath);
-    if (err != NULL) {
-        File file;
-        err = createFileWithPath(&file, datalistPath->filename, learningActivityDir->path, datalistPath->filename);
-        if (err != NULL) {
-            return SetStatus(0, "Failed to create datalist file path", err);
-        }
-        
-        err = MakeFile(&file);
-        if (err != NULL) {
-            FreeFileContent(&file);
-            return SetStatus(0, "Failed to create datalist file", err);
-        }
-        
-        FreeFileContent(&file);
-    }
-    
-    string fullPath = NULL;
-    err = mergeTwoStrings(&fullPath, learningActivityDir->path.path, "/datalist.csv");
-    if (err != NULL) {
-        return SetStatus(0, "Failed to create full path for datalist", err);
-    }
-    
-    FILE* file = fopen(fullPath, "w");
-    if (!file) {
-        FreeString(&fullPath);
-        return SetStatus(0, "Failed to open datalist file for writing", "File open error");
-    }
-    
-    LearningActivityList* current = class->learningActivityList;
-    while (current != NULL) {
-        fprintf(file, "%s,%s,%s\n", 
-                current->learningActivity.head, 
-                current->learningActivity.url ? current->learningActivity.url : "", 
-                current->learningActivity.description);
-        
-        current = current->next;
-    }
-    
-    fclose(file);
-    FreeString(&fullPath);
-    return SetStatus(1, "Learning Activity file updated successfully", NULL);
-}
-
-void ClassAssignmentPage(Auth* auth, Class* class) {
+void ClassAssignmentPage(Auth* auth, Class* class, uint8 year, uint8 term) {
     if (auth == NULL || class == NULL) {
         return;
     }
@@ -641,13 +497,13 @@ void ClassAssignmentPage(Auth* auth, Class* class) {
                 while (getchar() != '\n');
                 break;
             case '2':
-                status = AddAssignment(auth, class);
+                status = AddAssignment(auth, class, year, term);
                 if (status.code != 1) {
                     printf("\n\033[0;31mFailed to add assignment: %s\033[0m\n", status.details);
                 }
                 break;
             case '3':
-                status = RemoveAssignment(auth, class);
+                status = RemoveAssignment(auth, class, year, term);
                 if (status.code != 1 && status.msg != NULL) {
                     printf("\n\033[0;31m%s\033[0m\n", status.msg);
                 }

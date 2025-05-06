@@ -621,16 +621,21 @@ Status LoadAssignment(Auth* auth, Class* class, DataPath* classDataPath) {
         return SetStatus(1, "No assignments data found", NULL);
     }
     
-    textline* lines = NULL;
-    err = readFileToTextLinesPath(&lines, datalistPath->path);
-    if (err != NULL || lines == NULL) {
-        return SetStatus(1, "No assignment data to load", NULL);
+    FILE* file = fopen(datalistPath->path.path, "r");
+    if (file == NULL) {
+        return SetStatus(1, "Failed to open assignment data file", NULL);
     }
-    
+
     code assignmentsLoaded = 0;
-    textline* currentLine = lines;
-    
-    while (currentLine != NULL) {
+
+    // read each line of the file and parse the assignment data
+    char line[1024];
+    while (fgets(line, sizeof(line), file) != NULL) {
+        // Skip header line
+        if (strncmp(line, "head,assignDate,dueDate,description", 36) == 0) {
+            continue;
+        }
+        
         Assignment assignment;
         assignment.head = NULL;
         assignment.description = NULL;
@@ -640,48 +645,40 @@ Status LoadAssignment(Auth* auth, Class* class, DataPath* classDataPath) {
         char dueDateStr[64] = {0};
         char description[1024] = {0};
         
-        sscanf(currentLine->line, "%[^,],%[^,],%[^,],%[^\n]", 
+        sscanf(line, "%[^,],%[^,],%[^,],%[^\n]", 
                head, assignDateStr, dueDateStr, description);
         
         err = allocateString(&assignment.head, head);
         if (err != NULL) {
-            currentLine = currentLine->nextline;
             continue;
         }
         
         err = stringToDateTime(&assignment.assignDate, assignDateStr);
         if (err != NULL) {
             FreeString(&assignment.head);
-            currentLine = currentLine->nextline;
             continue;
         }
         
         err = stringToDateTime(&assignment.dueDate, dueDateStr);
         if (err != NULL) {
             FreeString(&assignment.head);
-            currentLine = currentLine->nextline;
             continue;
         }
         
         err = allocateString(&assignment.description, description);
         if (err != NULL) {
             FreeString(&assignment.head);
-            currentLine = currentLine->nextline;
             continue;
         }
         
         err = addAssignmentToList(&class->assignmentList, assignment);
         if (err != NULL) {
             FreeAssignmentContents(&assignment);
-            currentLine = currentLine->nextline;
             continue;
         }
-        
+
         assignmentsLoaded = 1;
-        currentLine = currentLine->nextline;
     }
-    
-    FreeTextLine(lines);
     
     if (assignmentsLoaded == 0) {
         return SetStatus(1, "No assignment data was loaded", NULL);
@@ -1071,6 +1068,10 @@ Status LoadFileList(Auth* auth, Class* class, DataPath* classDataPath) {
     
     code filesLoaded = 0;
     textline* currentLine = lines;
+    if (currentLine != NULL) {
+        // skip the first line (header)
+        currentLine = currentLine->nextline;
+    }
     
     while (currentLine != NULL) {
         File file;

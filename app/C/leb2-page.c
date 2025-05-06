@@ -75,7 +75,7 @@ void ShowSemester(SemesterList* currentSemester) {
                 }
                 break;
             case 's':
-                ClassSelectionPage(&(currentSemester->semester));
+                ClassSelectionPage(&(currentSemester->semester), currentSemester->semester.year, currentSemester->semester.term);
                 break;
             case 'b':
                 return;
@@ -103,7 +103,7 @@ void ShowClassSection(Semester* semester) {
     }
 }
 
-void ClassSelectionPage(Semester* semester) {
+void ClassSelectionPage(Semester* semester, uint8 year, uint8 term) {
     if (semester == NULL || semester->classList == NULL) {
         printf("No classes available to select\n");
         return;
@@ -130,18 +130,14 @@ void ClassSelectionPage(Semester* semester) {
         printf("\n\033[0;31mInvalid class number\033[0m\n");
         return;
     }
-
-    // Find selected class
     current = semester->classList;
     for (int i = 1; i < selection; i++) {
         current = current->next;
     }
-
-    // View class details - pass auth to make it available in ClassDetailsPage
-    ClassDetailsPage(&(current->class));
+    ClassDetailsPage(&(current->class), year, term);
 }
 
-void ClassDetailsPage(Class* class) {
+void ClassDetailsPage(Class* class, uint8 year, uint8 term) {
     if (class == NULL) {
         printf("Error: Invalid class data\n");
         return;
@@ -188,7 +184,7 @@ void ClassDetailsPage(Class* class) {
                 SyllabusPage(class->syllabus);
                 break;
             case '3':
-                ClassAssignmentPage(auth, class);  // Using the stored auth pointer
+                ClassAssignmentPage(auth, class, year, term);  // Using the stored auth pointer
                 break;
             case '4':
                 ClassLearningActivityPage(auth, class);  // Using the stored auth pointer

@@ -22,4 +22,6 @@ Status AddLearningActivityService(Auth* auth, Class* classnode, LearningActivity
 Status RemoveLearningActivityService(Auth* auth, Class* classnode, const string title);
 Status UpdateLearningActivityData(Auth* auth, Class* classnode);
 
+Status UpdateAssignmentFile(Auth* auth, Class* classnode, string classId, uint8 year, uint8 term);
+
 #endif
